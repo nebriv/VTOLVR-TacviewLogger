@@ -88,7 +88,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Support.cs" />
+    <Compile Include="actorProcessor.cs" />
+    <Compile Include="dataGetters.cs" />
+    <Compile Include="support.cs" />
     <Compile Include="extensions.cs" />
     <Compile Include="tacviewAcmi.cs" />
     <Compile Include="main.cs" />
