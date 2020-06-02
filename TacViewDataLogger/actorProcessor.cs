@@ -45,10 +45,9 @@ namespace TacViewDataLogger
             entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
             entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
 
-            entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
-            entry.radarMode = DataGetters.getRadarState(actor.gameObject);
-
-            entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
+            //entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
+            //entry.radarMode = DataGetters.getRadarState(actor.gameObject);
+            //entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
 
             return entry;
         }

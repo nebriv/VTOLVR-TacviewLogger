@@ -14,6 +14,8 @@ using Valve.Newtonsoft;
 using System.Linq;
 using ExtensionMethods;
 using System.Diagnostics;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 
 namespace TacViewDataLogger
 {
@@ -74,7 +76,6 @@ namespace TacViewDataLogger
             support.WriteLog("TacView Data Logger Loaded. Waiting for Scene Start!");
 
             SceneManager.sceneLoaded += SceneLoaded;
-
 
         }
 
@@ -138,41 +139,12 @@ namespace TacViewDataLogger
             StartCoroutine(writeString());
         }
 
-
-        //private void FixedUpdate()
-        //{
-        //    if (iterator < 46)
-        //    {
-        //        iterator++;
-        //    }
-        //    else
-        //    {
-        //        iterator = 0;
-        //        secondsElapsed++;
-
-        //        if (runlogger)
-        //        {
-        //            if (SceneManager.GetActiveScene().buildIndex != 7 && SceneManager.GetActiveScene().buildIndex != 12)
-        //            {
-        //                ResetLogger();
-        //            }
-        //            Support.WriteLog(secondsElapsed.ToString());
-        //            using (StreamWriter sw = File.AppendText(path))
-        //            {
-        //                sw.WriteLine("#" + secondsElapsed);
-        //            }
-        //            TacViewDataLogACMI();
-                    
-        //        }
-        //    }
-        //}
-
         public IEnumerator mainLoop()
         {
             while (runlogger)
             {
-                yield return new WaitForSeconds(.25f);
-                elapsedSeconds += .25f;
+                yield return new WaitForSeconds(1f);
+                elapsedSeconds += 1f;
 
                 if (SceneManager.GetActiveScene().buildIndex != 7 && SceneManager.GetActiveScene().buildIndex != 11)
                 {
@@ -181,9 +153,21 @@ namespace TacViewDataLogger
 
                 dataLog.Enqueue($"#{Math.Round(elapsedSeconds, 2)}");
 
+                GCLatencyMode oldMode = GCSettings.LatencyMode;
 
-                // Testing this for performance testing...
-                StartCoroutine(TacViewDataLogACMI());
+                RuntimeHelpers.PrepareConstrainedRegions();
+
+                try
+                {
+                    GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+                    
+                    TacViewDataLogACMI();
+                }
+                finally
+                {
+                    GCSettings.LatencyMode = oldMode;
+                }
+                
 
             }
         }
@@ -218,11 +202,9 @@ namespace TacViewDataLogger
                     File.AppendAllLines(path, dataLog);
                     dataLog.Clear();
                     stopwatch.Stop();
-                    
+                    support.WriteLog($"Time to save: {stopwatch.Elapsed.ToString()}");
                     saveTime = stopwatch.Elapsed.TotalMilliseconds;
 
-
-                    support.WriteLog($"Time to save: {stopwatch.Elapsed.ToString()}");
                 }
             }
 
@@ -237,25 +219,33 @@ namespace TacViewDataLogger
             Start();
         }
 
-        public IEnumerator TacViewDataLogACMI()
+        public void TacViewDataLogACMI()
         {
             List < Actor > actors = TargetManager.instance.allActors;
-            List<String> logStrings = new List<String>();
+
             List<String> actorIDList = new List<String>();
 
+
             // Processing game actors
+
+            List<double> actorTiming = new List<double>();
+
+
+            ACMIDataEntry newEntry;
+            ACMIDataEntry oldEntry;
+            string acmiString = "";
+
             for (int i = 0; i < actors.Count; i++)
             {
-                yield return new WaitForEndOfFrame();
-                ACMIDataEntry newEntry = buildDataEntry(actors[i]);
+
+                newEntry = buildDataEntry(actors[i]);
 
                 actorIDList.Add(support.getActorID(actors[i]));
 
-                string acmiString = "";
                 // If this is already a tracked actor
                 if (knownActors.ContainsKey(support.getActorID(actors[i])))
                 {
-                    ACMIDataEntry oldEntry = knownActors[support.getActorID(actors[i])];
+                    oldEntry = knownActors[support.getActorID(actors[i])];
 
                     // Diff the old entry and the new entry. Update the old entry with the new entry.
                     acmiString = newEntry.ACMIString(oldEntry);
@@ -269,9 +259,8 @@ namespace TacViewDataLogger
                 if (acmiString != "")
                 {
                     dataLog.Enqueue(acmiString);
-                }    
+                }
             }
-
 
             // Getting flares and processing them
             //var flares = getFlares();
@@ -325,21 +314,16 @@ namespace TacViewDataLogger
             //    }
             //}
 
-            StartCoroutine(cleanUpActors(actorIDList));
-
-        }
 
 
-        public IEnumerator cleanUpActors(List<String> actorIDList)
-        {
-            
+            Stopwatch removalStopwatch = new Stopwatch();
+
             List<String> removedActors = new List<String>();
 
             foreach (String actor in knownActors.Keys)
             {
                 if (!actorIDList.Contains(actor))
                 {
-                    yield return new WaitForEndOfFrame();
                     removedActors.Add(actor);
                     support.WriteLog($"Actor {actor} no longer exists");
                     dataLog.Enqueue(acmi.ACMIEvent("Destroyed", null, actor));
@@ -352,6 +336,9 @@ namespace TacViewDataLogger
             {
                 knownActors.Remove(actor);
             }
+
+
+            support.WriteLog($"Time to process actor removal: {removalStopwatch.Elapsed.ToString()}");
         }
 
         public ACMIDataEntry buildFlareEntry(CMFlare flare)
@@ -398,9 +385,7 @@ namespace TacViewDataLogger
             {
                 entry.color = "Red";
             }
-
-            GameObject currentVehicle = VTOLAPI.instance.GetPlayersVehicleGameObject();
-            
+           
             if (PilotSaveManager.current.pilotName == actor.actorName)
             {
                 entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
