@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Valve.Newtonsoft.Json;
-using System.IO;
-using System.Text;
 
 namespace TacViewDataLogger
 {
@@ -45,7 +42,7 @@ namespace TacViewDataLogger
             if (engines[0]["Afterburner"] == "True")
             {
                 return "1";
-            } 
+            }
 
             return "0";
         }

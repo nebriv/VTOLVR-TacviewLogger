@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExtensionMethods
 {
@@ -21,13 +17,16 @@ namespace ExtensionMethods
                 v.Prop = f.Name;
                 v.valA = f.GetValue(val1);
                 v.valB = f.GetValue(val2);
-                if ((v.valB != null) && (v.valA == null)){
+                if ((v.valB != null) && (v.valA == null))
+                {
                     variances.Add(v);
                 }
                 else if ((v.valA != null) && (v.valB == null))
                 {
                     variances.Add(v);
-                } else if ((v.valA != null) && (v.valB != null)) { 
+                }
+                else if ((v.valA != null) && (v.valB != null))
+                {
                     if (!v.valA.Equals(v.valB))
                         variances.Add(v);
                 }

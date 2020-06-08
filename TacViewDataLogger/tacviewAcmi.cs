@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using ExtensionMethods;
+﻿using ExtensionMethods;
+using System.Reflection;
 
 
 namespace TacViewDataLogger
@@ -47,7 +47,7 @@ FileVersion=2.1
 
         }
 
-        public string ACMIEvent(string eventType, string message=null, string gameObject = null)
+        public string ACMIEvent(string eventType, string message = null, string gameObject = null)
         {
             if (gameObject != null)
             {
@@ -59,8 +59,9 @@ FileVersion=2.1
                 {
                     return $"0,Event={eventType}|{gameObject}";
                 }
-                
-            } else
+
+            }
+            else
             {
                 if (message != null)
                 {
@@ -71,7 +72,7 @@ FileVersion=2.1
                     return $"0,Event={eventType}";
                 }
             }
-            
+
         }
     }
 
@@ -104,7 +105,7 @@ FileVersion=2.1
         public string locData
         {
             get { return "T=" + _locData; }
-            set { _locData = value;  }
+            set { _locData = value; }
         }
 
 
@@ -663,7 +664,7 @@ FileVersion=2.1
         public string objectType()
         {
             string type = "";
-            
+
             if (_objectAttributes != null)
             {
                 if (type != "")
@@ -696,7 +697,8 @@ FileVersion=2.1
                 {
                     type = $"{_basicTypes}";
                 }
-            } else if (_specificTypes != null)
+            }
+            else if (_specificTypes != null)
             {
                 if (type != "")
                 {
@@ -710,7 +712,727 @@ FileVersion=2.1
             return type;
         }
 
-        public string ACMIString(ACMIDataEntry oldEntry=null)
+        public string BuildString()
+        {
+            string outputString = "";
+
+            if (!objectId.EndsWith("="))
+            {
+                outputString += $",{objectId}";
+            }
+            if (!longitude.EndsWith("="))
+            {
+                outputString += $",{longitude}";
+            }
+            if (!latitude.EndsWith("="))
+            {
+                outputString += $",{latitude}";
+            }
+            if (!altitude.EndsWith("="))
+            {
+                outputString += $",{altitude}";
+            }
+            if (!locData.EndsWith("="))
+            {
+                outputString += $",{locData}";
+            }
+            if (!name.EndsWith("="))
+            {
+                outputString += $",{name}";
+            }
+            if (!parent.EndsWith("="))
+            {
+                outputString += $",{parent}";
+            }
+            if (!longName.EndsWith("="))
+            {
+                outputString += $",{longName}";
+            }
+            if (!fullName.EndsWith("="))
+            {
+                outputString += $",{fullName}";
+            }
+            if (!callSign.EndsWith("="))
+            {
+                outputString += $",{callSign}";
+            }
+            if (!registration.EndsWith("="))
+            {
+                outputString += $",{registration}";
+            }
+            if (!squawk.EndsWith("="))
+            {
+                outputString += $",{squawk}";
+            }
+            if (!pilot.EndsWith("="))
+            {
+                outputString += $",{pilot}";
+            }
+            if (!group.EndsWith("="))
+            {
+                outputString += $",{group}";
+            }
+            if (!country.EndsWith("="))
+            {
+                outputString += $",{country}";
+            }
+            if (!coalition.EndsWith("="))
+            {
+                outputString += $",{coalition}";
+            }
+            if (!color.EndsWith("="))
+            {
+                outputString += $",{color}";
+            }
+            if (!shape.EndsWith("="))
+            {
+                outputString += $",{shape}";
+            }
+            if (!debug.EndsWith("="))
+            {
+                outputString += $",{debug}";
+            }
+            if (!label.EndsWith("="))
+            {
+                outputString += $",{label}";
+            }
+            if (!focusedTarget.EndsWith("="))
+            {
+                outputString += $",{focusedTarget}";
+            }
+            if (!lockedTarget.EndsWith("="))
+            {
+                outputString += $",{lockedTarget}";
+            }
+            if (!importance.EndsWith("="))
+            {
+                outputString += $",{importance}";
+            }
+            if (!slot.EndsWith("="))
+            {
+                outputString += $",{slot}";
+            }
+            if (!disabled.EndsWith("="))
+            {
+                outputString += $",{disabled}";
+            }
+            if (!length.EndsWith("="))
+            {
+                outputString += $",{length}";
+            }
+            if (!width.EndsWith("="))
+            {
+                outputString += $",{width}";
+            }
+            if (!height.EndsWith("="))
+            {
+                outputString += $",{height}";
+            }
+            if (!radius.EndsWith("="))
+            {
+                outputString += $",{radius}";
+            }
+            if (!ias.EndsWith("="))
+            {
+                outputString += $",{ias}";
+            }
+            if (!cas.EndsWith("="))
+            {
+                outputString += $",{cas}";
+            }
+            if (!tas.EndsWith("="))
+            {
+                outputString += $",{tas}";
+            }
+            if (!mach.EndsWith("="))
+            {
+                outputString += $",{mach}";
+            }
+            if (!aoa.EndsWith("="))
+            {
+                outputString += $",{aoa}";
+            }
+            if (!agl.EndsWith("="))
+            {
+                outputString += $",{agl}";
+            }
+            if (!hdg.EndsWith("="))
+            {
+                outputString += $",{hdg}";
+            }
+            if (!hdm.EndsWith("="))
+            {
+                outputString += $",{hdm}";
+            }
+            if (!throttle.EndsWith("="))
+            {
+                outputString += $",{throttle}";
+            }
+            if (!afterburner.EndsWith("="))
+            {
+                outputString += $",{afterburner}";
+            }
+            if (!airBrakes.EndsWith("="))
+            {
+                outputString += $",{airBrakes}";
+            }
+            if (!flaps.EndsWith("="))
+            {
+                outputString += $",{flaps}";
+            }
+            if (!landingGear.EndsWith("="))
+            {
+                outputString += $",{landingGear}";
+            }
+            if (!landingGearHandle.EndsWith("="))
+            {
+                outputString += $",{landingGearHandle}";
+            }
+            if (!tailhook.EndsWith("="))
+            {
+                outputString += $",{tailhook}";
+            }
+            if (!parachute.EndsWith("="))
+            {
+                outputString += $",{parachute}";
+            }
+            if (!dragChute.EndsWith("="))
+            {
+                outputString += $",{dragChute}";
+            }
+            if (!fuelWeight.EndsWith("="))
+            {
+                outputString += $",{fuelWeight}";
+            }
+            if (!fuelVolume.EndsWith("="))
+            {
+                outputString += $",{fuelVolume}";
+            }
+            if (!fuelFlowWeight.EndsWith("="))
+            {
+                outputString += $",{fuelFlowWeight}";
+            }
+            if (!fuelFlowVolume.EndsWith("="))
+            {
+                outputString += $",{fuelFlowVolume}";
+            }
+            if (!radarMode.EndsWith("="))
+            {
+                outputString += $",{radarMode}";
+            }
+            if (!radarAzimuth.EndsWith("="))
+            {
+                outputString += $",{radarAzimuth}";
+            }
+            if (!radarElevation.EndsWith("="))
+            {
+                outputString += $",{radarElevation}";
+            }
+            if (!radarRange.EndsWith("="))
+            {
+                outputString += $",{radarRange}";
+            }
+            if (!radarHorizontalBeamwidth.EndsWith("="))
+            {
+                outputString += $",{radarHorizontalBeamwidth}";
+            }
+            if (!radarVerticalBeamwidth.EndsWith("="))
+            {
+                outputString += $",{radarVerticalBeamwidth}";
+            }
+            if (!lockedTargetMode.EndsWith("="))
+            {
+                outputString += $",{lockedTargetMode}";
+            }
+            if (!lockedTargetAzimuth.EndsWith("="))
+            {
+                outputString += $",{lockedTargetAzimuth}";
+            }
+            if (!lockedTargetElevation.EndsWith("="))
+            {
+                outputString += $",{lockedTargetElevation}";
+            }
+            if (!lockedTargetRange.EndsWith("="))
+            {
+                outputString += $",{lockedTargetRange}";
+            }
+            if (!engagementMode.EndsWith("="))
+            {
+                outputString += $",{engagementMode}";
+            }
+            if (!engagementMode2.EndsWith("="))
+            {
+                outputString += $",{engagementMode2}";
+            }
+            if (!engagementRange.EndsWith("="))
+            {
+                outputString += $",{engagementRange}";
+            }
+            if (!engagementRange2.EndsWith("="))
+            {
+                outputString += $",{engagementRange2}";
+            }
+            if (!verticalEngagementRange.EndsWith("="))
+            {
+                outputString += $",{verticalEngagementRange}";
+            }
+            if (!verticalEngagementRange2.EndsWith("="))
+            {
+                outputString += $",{verticalEngagementRange2}";
+            }
+            if (!rollControlInput.EndsWith("="))
+            {
+                outputString += $",{rollControlInput}";
+            }
+            if (!pitchControlInput.EndsWith("="))
+            {
+                outputString += $",{pitchControlInput}";
+            }
+            if (!yawControlInput.EndsWith("="))
+            {
+                outputString += $",{yawControlInput}";
+            }
+            if (!rollControlPosition.EndsWith("="))
+            {
+                outputString += $",{rollControlPosition}";
+            }
+            if (!pitchControlPosition.EndsWith("="))
+            {
+                outputString += $",{pitchControlPosition}";
+            }
+            if (!yawControlPosition.EndsWith("="))
+            {
+                outputString += $",{yawControlPosition}";
+            }
+            if (!rollTrimTab.EndsWith("="))
+            {
+                outputString += $",{rollTrimTab}";
+            }
+            if (!pitchTrimTab.EndsWith("="))
+            {
+                outputString += $",{pitchTrimTab}";
+            }
+            if (!yawTrimTab.EndsWith("="))
+            {
+                outputString += $",{yawTrimTab}";
+            }
+            if (!aileronLeft.EndsWith("="))
+            {
+                outputString += $",{aileronLeft}";
+            }
+            if (!aileronRight.EndsWith("="))
+            {
+                outputString += $",{aileronRight}";
+            }
+            if (!elevator.EndsWith("="))
+            {
+                outputString += $",{elevator}";
+            }
+            if (!rudder.EndsWith("="))
+            {
+                outputString += $",{rudder}";
+            }
+            if (!visible.EndsWith("="))
+            {
+                outputString += $",{visible}";
+            }
+            if (!pilotHeadRoll.EndsWith("="))
+            {
+                outputString += $",{pilotHeadRoll}";
+            }
+            if (!pilotHeadPitch.EndsWith("="))
+            {
+                outputString += $",{pilotHeadPitch}";
+            }
+            if (!pilotHeadYaw.EndsWith("="))
+            {
+                outputString += $",{pilotHeadYaw}";
+            }
+            if (this.objectType() != "")
+            {
+                outputString += $",Type={this.objectType()}";
+            }
+
+            return outputString;
+        }
+
+        public string shortString()
+        {
+            string outputString = "";
+
+            if (!objectId.EndsWith("="))
+            {
+                outputString += $",{objectId}";
+            }
+
+            if (!locData.EndsWith("="))
+            {
+                outputString += $",{locData}";
+            }
+
+            if (!ias.EndsWith("="))
+            {
+                outputString += $",{ias}";
+            }
+            if (!cas.EndsWith("="))
+            {
+                outputString += $",{cas}";
+            }
+            if (!tas.EndsWith("="))
+            {
+                outputString += $",{tas}";
+            }
+            if (!mach.EndsWith("="))
+            {
+                outputString += $",{mach}";
+            }
+            if (!aoa.EndsWith("="))
+            {
+                outputString += $",{aoa}";
+            }
+            if (!agl.EndsWith("="))
+            {
+                outputString += $",{agl}";
+            }
+            if (!hdg.EndsWith("="))
+            {
+                outputString += $",{hdg}";
+            }
+            //if (!hdm.EndsWith("="))
+            //{
+            //    outputString += $",{hdm}";
+            //}
+            //if (!throttle.EndsWith("="))
+            //{
+            //    outputString += $",{throttle}";
+            //}
+            if (!debug.EndsWith("="))
+            {
+                outputString += $",{debug}";
+            }
+            if (!label.EndsWith("="))
+            {
+                outputString += $",{label}";
+            }
+            if (!focusedTarget.EndsWith("="))
+            {
+                outputString += $",{focusedTarget}";
+            }
+            if (!lockedTarget.EndsWith("="))
+            {
+                outputString += $",{lockedTarget}";
+            }
+            if (!disabled.EndsWith("="))
+            {
+                outputString += $",{disabled}";
+            }
+            if (!radarMode.EndsWith("="))
+            {
+                outputString += $",{radarMode}";
+            }
+            if (!radarAzimuth.EndsWith("="))
+            {
+                outputString += $",{radarAzimuth}";
+            }
+            if (!radarElevation.EndsWith("="))
+            {
+                outputString += $",{radarElevation}";
+            }
+            if (!radarRange.EndsWith("="))
+            {
+                outputString += $",{radarRange}";
+            }
+            if (!radarHorizontalBeamwidth.EndsWith("="))
+            {
+                outputString += $",{radarHorizontalBeamwidth}";
+            }
+            if (!radarVerticalBeamwidth.EndsWith("="))
+            {
+                outputString += $",{radarVerticalBeamwidth}";
+            }
+            if (!lockedTargetMode.EndsWith("="))
+            {
+                outputString += $",{lockedTargetMode}";
+            }
+            if (!lockedTargetAzimuth.EndsWith("="))
+            {
+                outputString += $",{lockedTargetAzimuth}";
+            }
+            if (!lockedTargetElevation.EndsWith("="))
+            {
+                outputString += $",{lockedTargetElevation}";
+            }
+            if (!lockedTargetRange.EndsWith("="))
+            {
+                outputString += $",{lockedTargetRange}";
+            }
+            if (!engagementMode.EndsWith("="))
+            {
+                outputString += $",{engagementMode}";
+            }
+            if (!engagementMode2.EndsWith("="))
+            {
+                outputString += $",{engagementMode2}";
+            }
+            if (!visible.EndsWith("="))
+            {
+                outputString += $",{visible}";
+            }
+            //if (!longitude.EndsWith("="))
+            //{
+            //    outputString += $",{longitude}";
+            //}
+            //if (!latitude.EndsWith("="))
+            //{
+            //    outputString += $",{latitude}";
+            //}
+            //if (!altitude.EndsWith("="))
+            //{
+            //    outputString += $",{altitude}";
+            //}
+            //if (!name.EndsWith("="))
+            //{
+            //    outputString += $",{name}";
+            //}
+            //if (!parent.EndsWith("="))
+            //{
+            //    outputString += $",{parent}";
+            //}
+            //if (!longName.EndsWith("="))
+            //{
+            //    outputString += $",{longName}";
+            //}
+            //if (!fullName.EndsWith("="))
+            //{
+            //    outputString += $",{fullName}";
+            //}
+            //if (!callSign.EndsWith("="))
+            //{
+            //    outputString += $",{callSign}";
+            //}
+            //if (!registration.EndsWith("="))
+            //{
+            //    outputString += $",{registration}";
+            //}
+            //if (!squawk.EndsWith("="))
+            //{
+            //    outputString += $",{squawk}";
+            //}
+            //if (!pilot.EndsWith("="))
+            //{
+            //    outputString += $",{pilot}";
+            //}
+            //if (!group.EndsWith("="))
+            //{
+            //    outputString += $",{group}";
+            //}
+            //if (!country.EndsWith("="))
+            //{
+            //    outputString += $",{country}";
+            //}
+            //if (!coalition.EndsWith("="))
+            //{
+            //    outputString += $",{coalition}";
+            //}
+            //if (!color.EndsWith("="))
+            //{
+            //    outputString += $",{color}";
+            //}
+            //if (!shape.EndsWith("="))
+            //{
+            //    outputString += $",{shape}";
+            //}
+
+            //if (!importance.EndsWith("="))
+            //{
+            //    outputString += $",{importance}";
+            //}
+            //if (!slot.EndsWith("="))
+            //{
+            //    outputString += $",{slot}";
+            //}
+
+            //if (!length.EndsWith("="))
+            //{
+            //    outputString += $",{length}";
+            //}
+            //if (!width.EndsWith("="))
+            //{
+            //    outputString += $",{width}";
+            //}
+            //if (!height.EndsWith("="))
+            //{
+            //    outputString += $",{height}";
+            //}
+            //if (!radius.EndsWith("="))
+            //{
+            //    outputString += $",{radius}";
+            //}
+
+
+
+
+
+            //if (!afterburner.EndsWith("="))
+            //{
+            //    outputString += $",{afterburner}";
+            //}
+            //if (!airBrakes.EndsWith("="))
+            //{
+            //    outputString += $",{airBrakes}";
+            //}
+            //if (!flaps.EndsWith("="))
+            //{
+            //    outputString += $",{flaps}";
+            //}
+            //if (!landingGear.EndsWith("="))
+            //{
+            //    outputString += $",{landingGear}";
+            //}
+            //if (!landingGearHandle.EndsWith("="))
+            //{
+            //    outputString += $",{landingGearHandle}";
+            //}
+            //if (!tailhook.EndsWith("="))
+            //{
+            //    outputString += $",{tailhook}";
+            //}
+            //if (!parachute.EndsWith("="))
+            //{
+            //    outputString += $",{parachute}";
+            //}
+            //if (!dragChute.EndsWith("="))
+            //{
+            //    outputString += $",{dragChute}";
+            //}
+            //if (!fuelWeight.EndsWith("="))
+            //{
+            //    outputString += $",{fuelWeight}";
+            //}
+            //if (!fuelVolume.EndsWith("="))
+            //{
+            //    outputString += $",{fuelVolume}";
+            //}
+            //if (!fuelFlowWeight.EndsWith("="))
+            //{
+            //    outputString += $",{fuelFlowWeight}";
+            //}
+            //if (!fuelFlowVolume.EndsWith("="))
+            //{
+            //    outputString += $",{fuelFlowVolume}";
+            //}
+
+            //if (!engagementRange.EndsWith("="))
+            //{
+            //    outputString += $",{engagementRange}";
+            //}
+            //if (!engagementRange2.EndsWith("="))
+            //{
+            //    outputString += $",{engagementRange2}";
+            //}
+            //if (!verticalEngagementRange.EndsWith("="))
+            //{
+            //    outputString += $",{verticalEngagementRange}";
+            //}
+            //if (!verticalEngagementRange2.EndsWith("="))
+            //{
+            //    outputString += $",{verticalEngagementRange2}";
+            //}
+            //if (!rollControlInput.EndsWith("="))
+            //{
+            //    outputString += $",{rollControlInput}";
+            //}
+            //if (!pitchControlInput.EndsWith("="))
+            //{
+            //    outputString += $",{pitchControlInput}";
+            //}
+            //if (!yawControlInput.EndsWith("="))
+            //{
+            //    outputString += $",{yawControlInput}";
+            //}
+            //if (!rollControlPosition.EndsWith("="))
+            //{
+            //    outputString += $",{rollControlPosition}";
+            //}
+            //if (!pitchControlPosition.EndsWith("="))
+            //{
+            //    outputString += $",{pitchControlPosition}";
+            //}
+            //if (!yawControlPosition.EndsWith("="))
+            //{
+            //    outputString += $",{yawControlPosition}";
+            //}
+            //if (!rollTrimTab.EndsWith("="))
+            //{
+            //    outputString += $",{rollTrimTab}";
+            //}
+            //if (!pitchTrimTab.EndsWith("="))
+            //{
+            //    outputString += $",{pitchTrimTab}";
+            //}
+            //if (!yawTrimTab.EndsWith("="))
+            //{
+            //    outputString += $",{yawTrimTab}";
+            //}
+            //if (!aileronLeft.EndsWith("="))
+            //{
+            //    outputString += $",{aileronLeft}";
+            //}
+            //if (!aileronRight.EndsWith("="))
+            //{
+            //    outputString += $",{aileronRight}";
+            //}
+            //if (!elevator.EndsWith("="))
+            //{
+            //    outputString += $",{elevator}";
+            //}
+            //if (!rudder.EndsWith("="))
+            //{
+            //    outputString += $",{rudder}";
+            //}
+
+            //if (!pilotHeadRoll.EndsWith("="))
+            //{
+            //    outputString += $",{pilotHeadRoll}";
+            //}
+            //if (!pilotHeadPitch.EndsWith("="))
+            //{
+            //    outputString += $",{pilotHeadPitch}";
+            //}
+            //if (!pilotHeadYaw.EndsWith("="))
+            //{
+            //    outputString += $",{pilotHeadYaw}";
+            //}
+
+            return outputString;
+        }
+
+        public string ACMIString(ACMIDataEntry oldEntry = null)
+        {
+
+            string outputString = "";
+            if (oldEntry != null)
+            {
+                if (oldEntry.BuildString() != this.BuildString())
+                {
+                    outputString = shortString();
+                }
+
+            }
+            else
+            {
+                outputString = BuildString();
+            }
+            if (outputString.StartsWith(","))
+            {
+                outputString = outputString.Substring(1);
+            }
+
+            return outputString;
+
+        }
+
+        public string ACMIStringOld(ACMIDataEntry oldEntry = null)
         {
             string outputString = "";
             if (oldEntry != null)
@@ -725,6 +1447,9 @@ FileVersion=2.1
                 {
                     outputString = $"{objectId}{data}";
                 }
+
+                outputString = "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj";
+
             }
             else
             {
@@ -740,14 +1465,15 @@ FileVersion=2.1
                             moreProps = true;
                         }
                         if (!f.ToString().Contains(" _"))
-                        {                            if (!f.GetValue(this).ToString().EndsWith("="))
+                        {
+                            if (!f.GetValue(this).ToString().EndsWith("="))
                             {
                                 outputString += "," + f.GetValue(this);
                             }
                         }
 
                     }
-                    
+
                 }
                 if (this.objectType() != "")
                 {
@@ -771,13 +1497,13 @@ FileVersion=2.1
                 {
                     return outputString;
                 }
-                
+
             }
             else
             {
                 return outputString;
             }
-            
+
 
         }
     }

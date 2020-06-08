@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TacViewDataLogger
@@ -12,7 +9,7 @@ namespace TacViewDataLogger
 
         public static void WriteLog(string line)
         {
-            //Debug.Log($"{Globals.projectName} - {line}");
+            Debug.Log($"{Globals.projectName} - {line}");
         }
 
         public static void WriteErrorLog(string line)
@@ -55,7 +52,6 @@ namespace TacViewDataLogger
         public static Vector3D convertPositionToLatLong_raw(Vector3 position)
         {
             Vector3D real_loc;
-            Vector3D locationtext;
 
             real_loc = WorldPositionToGPSCoords(VTResources.GetMap(VTScenario.current.mapID), position);
             return real_loc;
