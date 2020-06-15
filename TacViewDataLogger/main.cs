@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine.Experimental.XR;
 
 namespace TacViewDataLogger
 {
@@ -76,10 +77,23 @@ namespace TacViewDataLogger
         private float nextActionTime = 0.0f;
         public float period = 0.5f;
 
+        public int frameRateLogSize = 90;
+
+
+        public FixedSizedQueue<float> frameRateLog;
+        public float minFrameTime = .0085f;
+        public float maxFrameTime = .0125f;
+
+        public float minSampleTime = .025f;
+        public float maxSampleTime = 1.26f;
+
+        public float missionElapsedTime;
+
+        public static UnityEngine.Events.UnityAction SceneReloaded;
 
         private void Start()
         {
-            HarmonyInstance harmony = HarmonyInstance.Create("tacview.logger");
+            HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             api = VTOLAPI.instance;
 
@@ -89,8 +103,18 @@ namespace TacViewDataLogger
             support.WriteLog("TacView Data Logger Loaded. Waiting for Scene Start!");
 
             SceneManager.sceneLoaded += SceneLoaded;
+            SceneReloaded += ResetLogger;
 
-        }
+            support.WriteLog($"VR Device Refresh Rate: {UnityEngine.XR.XRDevice.refreshRate.ToString()}");
+            support.WriteLog($"Target frame time: {(1 / UnityEngine.XR.XRDevice.refreshRate).ToString()}");
+
+            minFrameTime = (1 / UnityEngine.XR.XRDevice.refreshRate) + .0005f;
+            maxFrameTime = (1 / UnityEngine.XR.XRDevice.refreshRate) + .001f;
+            support.WriteLog($"Min: { minFrameTime} Max: {maxFrameTime}");
+
+            frameRateLogSize = (int)UnityEngine.XR.XRDevice.refreshRate * 2;
+            frameRateLog = new FixedSizedQueue<float>(frameRateLogSize);
+    }
 
 
         private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
@@ -116,13 +140,71 @@ namespace TacViewDataLogger
             }
         }
 
+        [HarmonyPatch(typeof(VTMapManager), "RestartCurrentScenario")]
+        class Patch
+        {
+            static void Postfix(VTMapManager __instance)
+            {
+                if (TacViewDataLogger2.SceneReloaded != null)
+                    TacViewDataLogger2.SceneReloaded.Invoke();
+            }
+        }
+
+        void manageSamplingRate()
+        {
+            if (frameRateLog.Count == frameRateLogSize)
+            {
+                if (frameRateLog.Average() > maxFrameTime)
+                {
+                    if (period < maxSampleTime)
+                    {
+                        period += .01f;
+                        //support.WriteLog($"Average Framerate is more than .001.... Decreasing sample rate to {period}");
+                    }
+
+                }
+                else if ((frameRateLog.Average() < minFrameTime) && (frameRateLog.Average() > minFrameTime - 0.004f))
+                {
+                    if (period > minSampleTime)
+                    {
+                        period -= .01f;
+                        //support.WriteLog($"Average Framerate is less than ..0085 and more than .004.... Increasing sample rate to {period}");
+                    }
+                }
+            }
+        }
+
         void Update()
         {
-            if (Time.time > nextActionTime)
+            
+            if (runlogger)
             {
-                nextActionTime += period;
-                if (runlogger)
+                //if (FlightSceneManager.instance.missionElapsedTime > 25)
+                //{
+                //    //support.WriteLog($"More than 25s - {FlightSceneManager.instance.missionElapsedTime}");
+                //    if (FlightSceneManager.instance.missionElapsedTime < elapsedSeconds)
+                //    {
+                //        support.WriteLog("Reset");
+                //        ResetLogger(true);
+                //    }
+                    
+                //}
+                if (elapsedSeconds > 5)
                 {
+                    frameRateLog.Enqueue(Time.deltaTime);
+                    manageSamplingRate();
+                }
+
+                if ((Time.time > nextActionTime) || (nextActionTime == 0.0f))
+                {
+                    
+                    if (frameRateLog.Count == frameRateLogSize)
+                    {
+                        //support.WriteLog($"Current Sampling Rate: {period} - Current Frame Average: {frameRateLog.Average()}, min: {minFrameTime}, max: {maxFrameTime}");
+                    }
+
+                    nextActionTime += period;
+                    
                     elapsedSeconds += period;
                     dataLog.Enqueue($"#{elapsedSeconds}");
                     try
@@ -149,6 +231,7 @@ namespace TacViewDataLogger
                     }
                 }
             }
+
         }
 
 
@@ -188,21 +271,82 @@ namespace TacViewDataLogger
             {
                 sw.WriteLine("0,ReferenceTime=" + timestamp);
             }
+            getGlobalMissionProperties();
             support.WriteLog("Running Logger");
             runlogger = true;
-
+            missionElapsedTime = FlightSceneManager.instance.missionElapsedTime;
             StartCoroutine(writeString());
+            getHeightMap();
+            getAirports();
+        }
+
+        private void getGlobalMissionProperties()
+        {
+
+            VTMap map = VTResources.GetMap(VTScenario.current.mapID);
+
+            string title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+            string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",","\\,")}";
+            string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                sw.WriteLine(title);
+                sw.WriteLine(briefing);
+                sw.WriteLine(author);
+            }
         }
 
 
+        public void getHeightMap()
+        {
+            if (customScene)
+            {
+                support.WriteLog("Getting custom map");
+                VTMapCustom map = VTResources.GetCustomMap(VTScenario.current.mapID);
+                var bytes = ImageConversion.EncodeToPNG(map.heightMap);
+                File.WriteAllBytes("test.png", bytes);
+            }
+            else
+            {
+                support.WriteLog("Getting built in map");
+                VTMap map = VTResources.GetMap(VTScenario.current.mapID);
+                try
+                {
+                    VTTHeightMap[] hm = gameObject.GetComponentsInChildren<VTTHeightMap>();
+                    if (hm.Length != 0)
+                    {
+                        if (hm[0].heightMap != null)
+                        {
+                            support.WriteLog("YESSSS!");
+                        }
+                    }
+                    else
+                    {
+                        support.WriteLog("HM is null :(");
+                    }
+
+                } catch
+                {
+                    support.WriteLog("Error getting VTTHeightmap");
+                }
+            }
+        }
+
+        public void getAirports()
+        {
+            VTMapManager[] mm = FindObjectsOfType<VTMapManager>();
+            foreach (AirportManager manager in mm[0].airports)
+            {
+                newEntry = actorProcessor.airportEntry(manager);
+
+                dataLog.Enqueue(newEntry.ACMIString());
+
+            }
+        }
+
         public List<CMFlare> getFlares()
         {
-            //flares = new List<CMFlare>();
-
-            //if (elapsedSeconds % 2 == 0)
-            //{
             flares = new List<CMFlare>(FindObjectsOfType<CMFlare>());
-            //}
 
             return flares;
         }
@@ -210,13 +354,7 @@ namespace TacViewDataLogger
 
         public List<Bullet> getBullets()
         {
-
-            //bullets = new List<Bullet>();
-
-            //if (elapsedSeconds % 2 == 0)
-            //{
             bullets = new List<Bullet>(FindObjectsOfType<Bullet>());
-            //}
 
             return bullets;
         }
@@ -226,15 +364,14 @@ namespace TacViewDataLogger
             while (runlogger)
             {
 
-                yield return new WaitForSeconds(15);
-
-                if (dataLog.Count > 500)
+                if (dataLog.Count > 0)
                 {
                     //File.AppendAllLines(path, dataLog);
                     //dataLog.Clear();
                     Task t1 = new Task(writeStringTask);
                     t1.Start();
                 }
+                yield return new WaitForSeconds(15);
             }
 
         }
@@ -249,10 +386,16 @@ namespace TacViewDataLogger
         public void ResetLogger()
         {
             runlogger = false;
+            writeStringTask();
+            elapsedSeconds = 0f;
+            nextActionTime = 0.0f;
+            period = 0.5f;
+            knownActors = new Dictionary<String, ACMIDataEntry>();
 
-            UnityEngine.Debug.Log("Scene end detected. Stopping TacView Recorder");
+            support.WriteLog("Scene end detected. Stopping TacView Recorder");
 
-            Start();
+            StartCoroutine(WaitForScenario());
+
         }
 
         public void TacViewDataLogACMI()
@@ -389,6 +532,8 @@ namespace TacViewDataLogger
 
 
 
+
+
         public ACMIDataEntry buildBulletEntry(Bullet bullet)
         {
             entry = new ACMIDataEntry();
@@ -409,6 +554,10 @@ namespace TacViewDataLogger
             entry = new ACMIDataEntry();
             entry.objectId = actor.gameObject.GetInstanceID().ToString("X").ToLower();
 
+            //actorName = actor's name in the mission
+            //name = actor's unit name
+
+
             if (actor.team.ToString() == "Allied")
             {
                 entry.color = "Blue";
@@ -420,32 +569,39 @@ namespace TacViewDataLogger
 
             if (PilotSaveManager.current.pilotName == actor.actorName)
             {
+
                 entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
                 entry = actorProcessor.playerVehicleDataEntry(actor, entry, customSceneOffset);
 
             }
             else if (actor.role == Actor.Roles.Air)
             {
+                //support.WriteLog("Air");
                 entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.Ground)
             {
+                //support.WriteLog("Ground");
                 entry = actorProcessor.groundVehicleDataEntry(actor, entry, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.GroundArmor)
             {
+                //support.WriteLog("GroundArmor");
                 entry = actorProcessor.groundVehicleDataEntry(actor, entry, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.Ship)
             {
+                //support.WriteLog("Ship");
                 entry = actorProcessor.shipVehicleDataEntry(actor, entry, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.Missile)
             {
+                //support.WriteLog("Missile");
                 entry = actorProcessor.missileDataEntry(actor, entry, customSceneOffset);
             }
-            else if (actor.role == Actor.Roles.None)
+            else
             {
+                //support.WriteLog("Other");
                 entry = actorProcessor.genericDataEntry(actor, entry, customSceneOffset);
             }
 

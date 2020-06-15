@@ -8,6 +8,7 @@ namespace TacViewDataLogger
     public class DataGetters
     {
 
+
         public static List<Dictionary<string, string>> GetEngineStats(GameObject vehicle)
         {
             List<Dictionary<string, string>> engines = new List<Dictionary<string, string>>();
@@ -80,6 +81,40 @@ namespace TacViewDataLogger
             }
 
         }
+
+
+        public static Actor getRadarLockTarget(GameObject vehicle, Actor player)
+        {
+            Actor detectedActor = new Actor();
+            try
+            {
+                LockingRadar radar = vehicle.GetComponentInChildren<LockingRadar>();
+                if (radar.IsLocked())
+                {
+                    return radar.currentLock.actor;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                support.WriteLog("Got error while getting radar lock data");
+                return null;
+            }
+        }
+
+        //public void DebugAllRadars()
+        //{
+        //    List<Radar> radars = new List<Radar>(FindObjectsOfType<Radar>());
+
+        //    foreach (Radar radar in radars)
+        //    {
+        //        radar.debugRadar = true;
+        //    }
+
+        //}
 
         public static string getRadarAzimuth(GameObject vehicle)
         {
