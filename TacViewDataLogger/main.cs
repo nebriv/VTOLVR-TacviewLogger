@@ -12,7 +12,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine.Experimental.XR;
 using System.Runtime.InteropServices;
 
 namespace TacViewDataLogger
@@ -321,6 +320,8 @@ namespace TacViewDataLogger
 
             return bytes;
         }
+        // Source:
+        // https://stackoverflow.com/a/46058092
         private static void SaveImageToRawFile(string strDeviceName, Byte[] Image, int nImageSize)
         {
             string strFileName = strDeviceName;
@@ -335,6 +336,45 @@ namespace TacViewDataLogger
             vBinaryWriter.Close();
             vFileStream.Close();
         }
+
+
+        // Source 
+        // https://support.unity3d.com/hc/en-us/articles/206486626-How-can-I-get-pixels-from-unreadable-textures-?mobile_site=true
+        public Texture2D getTexture(Texture2D unreadableTexture)
+        {
+            // Create a temporary RenderTexture of the same size as the texture
+            RenderTexture tmp = RenderTexture.GetTemporary(
+                                unreadableTexture.width,
+                                unreadableTexture.height,
+                                0,
+                                RenderTextureFormat.Default,
+                                RenderTextureReadWrite.Linear);
+
+            // Blit the pixels on texture to the RenderTexture
+            UnityEngine.Graphics.Blit(unreadableTexture, tmp);
+
+            // Backup the currently set RenderTexture
+            RenderTexture previous = RenderTexture.active;
+
+            // Set the current RenderTexture to the temporary one we created
+            RenderTexture.active = tmp;
+
+            // Create a new readable Texture2D to copy the pixels to it
+            Texture2D myTexture2D = new Texture2D(unreadableTexture.width, unreadableTexture.height);
+
+
+            // Copy the pixels from the RenderTexture to the new Texture
+            myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
+            myTexture2D.Apply();
+
+            // Reset the active RenderTexture
+            RenderTexture.active = previous;
+
+            RenderTexture.ReleaseTemporary(tmp);
+
+            return myTexture2D;
+        }
+
 
         public void getHeightMap()
         {
@@ -351,46 +391,37 @@ namespace TacViewDataLogger
                 VTMap map = VTResources.GetMap(VTScenario.current.mapID);
                 VTMapManager[] mm = FindObjectsOfType<VTMapManager>();
 
-                // Create a temporary RenderTexture of the same size as the texture
-                RenderTexture tmp = RenderTexture.GetTemporary(
-                                    mm[0].fallbackHeightmap.width,
-                                    mm[0].fallbackHeightmap.height,
-                                    0,
-                                    RenderTextureFormat.Default,
-                                    RenderTextureReadWrite.Linear);
 
-                // Blit the pixels on texture to the RenderTexture
-                Graphics.Blit(mm[0].fallbackHeightmap, tmp);
-
-                // Backup the currently set RenderTexture
-                RenderTexture previous = RenderTexture.active;
-
-                // Set the current RenderTexture to the temporary one we created
-                RenderTexture.active = tmp;
-
-                // Create a new readable Texture2D to copy the pixels to it
-                Texture2D myTexture2D = new Texture2D(mm[0].fallbackHeightmap.width, mm[0].fallbackHeightmap.height);
+                Texture2D myTexture2D = getTexture(mm[0].fallbackHeightmap);
 
 
-                // Copy the pixels from the RenderTexture to the new Texture
-                myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
-                myTexture2D.Apply();
 
-                // Reset the active RenderTexture
-                RenderTexture.active = previous;
+                // Convert from RGBA32 to R16 - Shoutout to GentleLeviathan on Vtol VR Modding Discord!
+                Texture2D toBecomeHeightmap = new Texture2D(myTexture2D.width, myTexture2D.height, TextureFormat.R16, false);
 
-                RenderTexture.ReleaseTemporary(tmp);
+                Color[] newColors = new Color[myTexture2D.width * myTexture2D.height];
 
-                SaveImageToRawFile("Test", myTexture2D.GetRawTextureData(), 2048);
+                for (int x = 0; x < toBecomeHeightmap.width; x++)
+                {
+                    for (int y = 0; y < toBecomeHeightmap.height; y++)
+                    {
+                        newColors[x + (y * toBecomeHeightmap.width)] = myTexture2D.GetPixel(y, x);
+                    }
+                }
 
-                //var bytes = ImageConversion.EncodeToPNG(myTexture2D);
-                support.WriteLog($"Height: {myTexture2D.height} Width: {myTexture2D.width}");
+                toBecomeHeightmap.SetPixels(newColors);
+                toBecomeHeightmap.Apply();
 
-                var pngbytes = myTexture2D.EncodeToPNG();
-                File.WriteAllBytes("test.png", pngbytes);
 
-                //var bytes = myTexture2D.GetPixels();
-                //File.WriteAllBytes("test.raw", bytes);
+                support.WriteLog(toBecomeHeightmap.format.ToString());
+
+                byte[] rawBytes = toBecomeHeightmap.GetRawTextureData();
+
+                File.WriteAllBytes("test.data", rawBytes);
+
+
+                support.WriteLog($"Height: {toBecomeHeightmap.height} Width: {toBecomeHeightmap.width}");
+
 
                 support.WriteLog($"{map.mapLatitude}, {map.mapLongitude}");
                 support.WriteLog($"{map.mapSize}");
