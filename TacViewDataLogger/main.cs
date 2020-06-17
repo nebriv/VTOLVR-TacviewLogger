@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Experimental.XR;
+using System.Runtime.InteropServices;
 
 namespace TacViewDataLogger
 {
@@ -296,6 +297,44 @@ namespace TacViewDataLogger
             }
         }
 
+        private static byte[] Color32ArrayToByteArray(Color32[] colors)
+        {
+            if (colors == null || colors.Length == 0)
+                return null;
+
+            int lengthOfColor32 = Marshal.SizeOf(typeof(Color32));
+            int length = lengthOfColor32 * colors.Length;
+            byte[] bytes = new byte[length];
+
+            GCHandle handle = default(GCHandle);
+            try
+            {
+                handle = GCHandle.Alloc(colors, GCHandleType.Pinned);
+                IntPtr ptr = handle.AddrOfPinnedObject();
+                Marshal.Copy(ptr, bytes, 0, length);
+            }
+            finally
+            {
+                if (handle != default(GCHandle))
+                    handle.Free();
+            }
+
+            return bytes;
+        }
+        private static void SaveImageToRawFile(string strDeviceName, Byte[] Image, int nImageSize)
+        {
+            string strFileName = strDeviceName;
+            strFileName += ".raw";
+
+            FileStream vFileStream = new FileStream(strFileName, FileMode.Create);
+            BinaryWriter vBinaryWriter = new BinaryWriter(vFileStream);
+            for (int vIndex = 0; vIndex < nImageSize; vIndex++)
+            {
+                vBinaryWriter.Write((byte)Image[vIndex]);
+            }
+            vBinaryWriter.Close();
+            vFileStream.Close();
+        }
 
         public void getHeightMap()
         {
@@ -310,6 +349,70 @@ namespace TacViewDataLogger
             {
                 support.WriteLog("Getting built in map");
                 VTMap map = VTResources.GetMap(VTScenario.current.mapID);
+                VTMapManager[] mm = FindObjectsOfType<VTMapManager>();
+
+                // Create a temporary RenderTexture of the same size as the texture
+                RenderTexture tmp = RenderTexture.GetTemporary(
+                                    mm[0].fallbackHeightmap.width,
+                                    mm[0].fallbackHeightmap.height,
+                                    0,
+                                    RenderTextureFormat.Default,
+                                    RenderTextureReadWrite.Linear);
+
+                // Blit the pixels on texture to the RenderTexture
+                Graphics.Blit(mm[0].fallbackHeightmap, tmp);
+
+                // Backup the currently set RenderTexture
+                RenderTexture previous = RenderTexture.active;
+
+                // Set the current RenderTexture to the temporary one we created
+                RenderTexture.active = tmp;
+
+                // Create a new readable Texture2D to copy the pixels to it
+                Texture2D myTexture2D = new Texture2D(mm[0].fallbackHeightmap.width, mm[0].fallbackHeightmap.height);
+
+
+                // Copy the pixels from the RenderTexture to the new Texture
+                myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
+                myTexture2D.Apply();
+
+                // Reset the active RenderTexture
+                RenderTexture.active = previous;
+
+                RenderTexture.ReleaseTemporary(tmp);
+
+                SaveImageToRawFile("Test", myTexture2D.GetRawTextureData(), 2048);
+
+                //var bytes = ImageConversion.EncodeToPNG(myTexture2D);
+                support.WriteLog($"Height: {myTexture2D.height} Width: {myTexture2D.width}");
+
+                var pngbytes = myTexture2D.EncodeToPNG();
+                File.WriteAllBytes("test.png", pngbytes);
+
+                //var bytes = myTexture2D.GetPixels();
+                //File.WriteAllBytes("test.raw", bytes);
+
+                support.WriteLog($"{map.mapLatitude}, {map.mapLongitude}");
+                support.WriteLog($"{map.mapSize}");
+
+                geoHelper.GeoLocation bottomRight = new geoHelper.GeoLocation();
+                bottomRight.Latitude = map.mapLatitude;
+                bottomRight.Longitude = map.mapLongitude;
+
+                geoHelper.GeoLocation bottomLeft = geoHelper.FindPointAtDistanceFrom(bottomRight, 270, map.mapSize);
+
+                geoHelper.GeoLocation topLeft = geoHelper.FindPointAtDistanceFrom(bottomLeft, 0, map.mapSize);
+
+                geoHelper.GeoLocation topRight = geoHelper.FindPointAtDistanceFrom(topLeft, 90, map.mapSize);
+
+
+                support.WriteLog(bottomLeft.ToString());
+                support.WriteLog(bottomRight.ToString());
+                support.WriteLog(topRight.ToString());
+                support.WriteLog(topLeft.ToString());
+                
+
+
                 try
                 {
                     VTTHeightMap[] hm = gameObject.GetComponentsInChildren<VTTHeightMap>();
