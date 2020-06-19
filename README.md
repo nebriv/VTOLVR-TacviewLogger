@@ -42,7 +42,7 @@ Models in Tacview can be added via the following steps:
  - KetKev and Marsh.Mello
 	 - The developers of the VTOL VR modloader have been essential to helping me dive into creating mods, debugging, and optimizing. Without their support I would have given up long ago.
  -  Frantz Raia, of Raia Software inc.
-	 - The developer of Tacview patiently supported my endeavors as I learned the Tacview tool and its capabilities. 
+	 - The developer of Tacview patiently supported my endeavors as I learned the Tacview tool and its capabilities. He provided significant support with getting custom heightmaps from VTOL VR into Tacview.
  - The guys on the VTOL VR Modding Discord Channel!
 	 - GentleLeviathan, Temperz87,  THE GREAT OVERLORD OF ALL CHEESE, and many more people. Everyone has supported me in someway or another - whether it is through long and late nights of debugging, feedback on videos and GIFS, or just supportive commentary when the rough got rougher.
  - F/A-26B on the VTOL VR Discord Channel
