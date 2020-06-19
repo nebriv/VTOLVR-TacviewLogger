@@ -37,6 +37,19 @@ So thats why I wasn't cleared for a conventional landing...
 ## Usage
 To use the mod simply install the mod, launch the game, and enable the mod. At the time of writing it is important that you enable the mod every time you start the game. Once you begin a flight scene the data logger will automatically begin recording, as of now there is no positive indication of the recording in flight.
 
+### Downloading and Installing
+This mod will be available for download on https://vtolvr-mods.com (*Insert direct link when uploaded*). I would recommend using the One-Click Install function to automatically download the mod.
+
+Alternatively you can download the latest release here:
+*(Placeholder for when it gets released)*
+
+If you are manually installing you need to place the downloaded zip file in your VTOL VR Game folder inside the VTOLVR_ModLoader\mods\ directory. The mod loader should automatically detect and unzip it for you once launched.
+
+### Running
+To use the mod simply launch the game via the mod loader (open the mod loader and press play). Once in game, after you click start you should see a "Mods" button. Open the mods page, select the Tacview Data Logger and click load. You should be good to go! At the start of the first few missions (and on those of particular importance) I would recommend browsing to the TacViewDataLogs folder within the VTOL VR game folder, and making sure you see a new folder with today's date and time, in that folder should be the three files described below.
+
+### Data Structure
+
 All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLogs. Within this folder multiple folders with the datetime stamp of the flight will be created. Within this flight folder three files should be created.
  - datalog.acmi
 	 - This is the primary datalog created for viewing in Tacview. With Tacview installed, you should simply be able to double click this and open it.
