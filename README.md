@@ -44,6 +44,13 @@ All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLog
  - heightmap_MAPName.data
 	 - This is the heightmap data. Copy this file into C:\ProgramData\Tacview\Data\Terrain\Custom\. See Height Maps/Terrain for more details.
 
+### Requirements
+
+- Tacview must be installed. I've been developing against the Advanced version, but I believe the start version should work.
+	 - https://www.tacview.net/product/about/en/
+- VTOLVR Modloader must be installed and functional.
+	 - https://vtolvr-mods.com/
+
 ### Logged Parameters
 All active actors (vehicles and projectiles) within a scene are logged.
 The following parameters are generally all logged. Some ground and water vehicles may not contain all applicable data.
