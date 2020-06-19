@@ -13,19 +13,21 @@ using UnityEngine.SceneManagement;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
+using UnityEngine.Events;
 
 namespace TacViewDataLogger
 {
     static class Globals
     {
 
-        public static string projectName = "VTOLVR TacView Data Logger";
+        public static string projectName = "VTOL VR Tacview Data Logger";
         public static string projectAuthor = "Nebriv";
-        public static string projectVersion = "v2.0";
+        public static string projectVersion = "v2.0 (Beta)";
 
     }
 
-    public class TacViewDataLogger2 : VTOLMOD
+    public class TacViewDataLogger : VTOLMOD
     {
 
         public static string dataSource = $"VTOL VR v{GameStartup.version.ToString()}";
@@ -38,7 +40,7 @@ namespace TacViewDataLogger
         private bool runlogger;
 
         private GameObject currentVehicle;
-        private string TacViewFolder;
+        public string TacViewFolder;
 
         private string path;
         public int iterator;
@@ -51,7 +53,7 @@ namespace TacViewDataLogger
 
         public Dictionary<String, ACMIDataEntry> knownActors = new Dictionary<String, ACMIDataEntry>();
 
-        
+
         public string acmiString;
         List<String> actorIDList;
         List<Actor> actors;
@@ -89,7 +91,19 @@ namespace TacViewDataLogger
 
         public float missionElapsedTime;
 
+        public heightmapGeneration heightmapGeneration = new heightmapGeneration();
+
         public static UnityEngine.Events.UnityAction SceneReloaded;
+
+
+        public VTMapManager mapManager;
+
+
+        public actorProcessor actorProcessor = new actorProcessor();
+        public support support = new support();
+
+        public Texture2D gameHeightmap;
+
 
         private void Start()
         {
@@ -114,12 +128,13 @@ namespace TacViewDataLogger
 
             frameRateLogSize = (int)UnityEngine.XR.XRDevice.refreshRate * 2;
             frameRateLog = new FixedSizedQueue<float>(frameRateLogSize);
-    }
+        }
 
 
         private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             if (arg0.buildIndex == 7 || arg0.buildIndex == 11)
+            {
                 if (arg0.buildIndex == 11)
                 {
                     customScene = true;
@@ -129,7 +144,10 @@ namespace TacViewDataLogger
                     customScene = false;
                 }
 
-            StartCoroutine(WaitForScenario());
+                StartCoroutine(WaitForScenario());
+            }
+
+
 
             if (runlogger)
             {
@@ -140,15 +158,6 @@ namespace TacViewDataLogger
             }
         }
 
-        [HarmonyPatch(typeof(VTMapManager), "RestartCurrentScenario")]
-        class Patch
-        {
-            static void Postfix(VTMapManager __instance)
-            {
-                if (TacViewDataLogger2.SceneReloaded != null)
-                    TacViewDataLogger2.SceneReloaded.Invoke();
-            }
-        }
 
         void manageSamplingRate()
         {
@@ -176,35 +185,28 @@ namespace TacViewDataLogger
 
         void Update()
         {
-            
+
             if (runlogger)
             {
-                //if (FlightSceneManager.instance.missionElapsedTime > 25)
-                //{
-                //    //support.WriteLog($"More than 25s - {FlightSceneManager.instance.missionElapsedTime}");
-                //    if (FlightSceneManager.instance.missionElapsedTime < elapsedSeconds)
-                //    {
-                //        support.WriteLog("Reset");
-                //        ResetLogger(true);
-                //    }
-                    
-                //}
+
                 if (elapsedSeconds > 5)
                 {
-                    frameRateLog.Enqueue(Time.deltaTime);
-                    manageSamplingRate();
+                    // Disabling this for now as it seems to screw with the time scaling in TacView
+
+                    //frameRateLog.Enqueue(Time.deltaTime);
+                    //manageSamplingRate();
                 }
 
                 if ((Time.time > nextActionTime) || (nextActionTime == 0.0f))
                 {
-                    
+
                     if (frameRateLog.Count == frameRateLogSize)
                     {
                         //support.WriteLog($"Current Sampling Rate: {period} - Current Frame Average: {frameRateLog.Average()}, min: {minFrameTime}, max: {maxFrameTime}");
                     }
 
                     nextActionTime += period;
-                    
+
                     elapsedSeconds += period;
                     dataLog.Enqueue($"#{elapsedSeconds}");
                     try
@@ -237,233 +239,211 @@ namespace TacViewDataLogger
 
         private IEnumerator WaitForScenario()
         {
-            while (VTMapManager.fetch == null || !VTMapManager.fetch.scenarioReady)
+            if (!runlogger)
             {
-                yield return null;
+                while (VTMapManager.fetch == null || !VTMapManager.fetch.scenarioReady)
+                {
+                    yield return null;
+                }
+
+                mapManager = VTMapManager.fetch;
+                actorProcessor.support = support;
+                heightmapGeneration.support = support;
+                support.mm = mapManager;
+
+
+                support.WriteLog("Map ID:");
+                support.WriteLog(mapManager.map.mapID);
+
+                if (customScene)
+                {
+                    VTMapCustom[] customMaps = FindObjectsOfType<VTMapCustom>();
+
+                    foreach (VTMapCustom map in customMaps)
+                    {
+                        if (mapManager.map.mapID == map.mapID)
+                        {
+                            support.WriteLog("I THINK I CAN I THINK I CAN I THINK I CAN!");
+                            gameHeightmap = map.heightMap;
+                        }
+                    }
+                }
+                else
+                {
+                    gameHeightmap = mapManager.fallbackHeightmap;
+                }
+
+                heightmapGeneration.gameHeightmap = gameHeightmap;
+
+
+                support.WriteLog("Scenario Ready!");
+
+                support.WriteLog("Getting Players Vehicle");
+                currentVehicle = VTOLAPI.instance.GetPlayersVehicleGameObject();
+
+                support.WriteLog("Creating TacView Directory");
+                System.IO.Directory.CreateDirectory("TacViewDataLogs\\" + DateTime.UtcNow.ToString("yyyy-MM-dd HHmm"));
+
+                TacViewFolder = "TacViewDataLogs\\" + DateTime.UtcNow.ToString("yyyy-MM-dd HHmm") + "\\";
+
+                path = @TacViewFolder + "datalog.acmi";
+
+                acmi = new ACMI();
+
+                support.WriteLog("Creating TacView File");
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(acmi.acmi21Header());
+                }
+
+                // Setting the current recording time
+                support.WriteLog("Writing Reference Time");
+                string timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                using (StreamWriter sw = File.AppendText(path))
+                {
+                    sw.WriteLine("0,RecordingTime=" + timestamp);
+                }
+
+                support.WriteLog($"Env Name: {VTScenario.current.envName}");
+
+
+                //Setting a custom hour to simulate the time of day based on the current scenario
+                if (VTScenario.current.envName == "day")
+                {
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                        string minsec = DateTime.UtcNow.ToString("mm:ss");
+                        timestamp += $"T13:{minsec}Z";
+                        sw.WriteLine("0,ReferenceTime=" + timestamp);
+                    }
+                } else if (VTScenario.current.envName == "morning")
+                {
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                        string minsec = DateTime.UtcNow.ToString("mm:ss");
+                        timestamp += $"T06:{minsec}Z";
+                        sw.WriteLine("0,ReferenceTime=" + timestamp);
+                    }
+
+                } else if (VTScenario.current.envName == "night")
+                {
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                        string minsec = DateTime.UtcNow.ToString("mm:ss");
+                        timestamp += $"T23:{minsec}Z";
+                        sw.WriteLine("0,ReferenceTime=" + timestamp);
+                    }
+                }
+                else
+                {
+                    support.WriteLog($"Unknown Scenario Env (day/morning/night) {VTScenario.current.envName}");
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        sw.WriteLine("0,ReferenceTime=" + timestamp);
+                    }
+                    
+                }
+
+                // Custom Scene is set for anything not on the Akutan map
+                support.WriteLog($"Custom Scene: {customScene}");
+
+                getGlobalMissionProperties();
+                getObjectives();
+
+                //// Elapsed time isn't used for anything anymore apparently... I'll keep it around for a reminder of better times.
+                ////missionElapsedTime = FlightSceneManager.instance.missionElapsedTime;
+
+                support.WriteLog("Running Logger");
+                runlogger = true;
+
+                // Start the function to save the mission data
+                StartCoroutine(writeString());
+
+                //// Get the heightmap info (Requires the map manager for the built in map)
+                heightmapGeneration.getHeightMap(customScene, TacViewFolder, mapManager);
+
+
+                // Get the airports
+                getAirports();
             }
 
-            support.WriteLog("Scenario Ready!");
+        }
 
-            support.WriteLog("Getting Players Vehicle");
-            currentVehicle = VTOLAPI.instance.GetPlayersVehicleGameObject();
+        public void objectiveBegin(MissionObjective obj)
+        {
+            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
+        }
 
+        public void objectiveComplete(MissionObjective obj)
+        {
+            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
+        }
+        public void objectiveFail(MissionObjective obj)
+        {
+            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
+        }
 
-            support.WriteLog("Creating TacView Directory");
-            System.IO.Directory.CreateDirectory("TacViewDataLogs\\" + DateTime.UtcNow.ToString("yyyy-MM-dd HHmm"));
+        private void getObjectives()
+        {
+            MissionObjective[] objectives = FindObjectsOfType<MissionObjective>();
 
-            TacViewFolder = "TacViewDataLogs\\" + DateTime.UtcNow.ToString("yyyy-MM-dd HHmm") + "\\";
-
-            path = @TacViewFolder + "datalog.acmi";
-
-            acmi = new ACMI();
-
-            support.WriteLog("Creating TacView File");
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(path))
+            foreach (MissionObjective objective in objectives)
             {
-                sw.WriteLine(acmi.acmi21Header());
+                objective.OnBegin.AddListener(() => objectiveBegin(objective));
+                objective.OnComplete.AddListener(() => objectiveComplete(objective));
+                objective.OnFail.AddListener(() => objectiveFail(objective));
             }
 
-
-            support.WriteLog("Writing Reference Time");
-            string timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            using (StreamWriter sw = File.AppendText(path))
-            {
-                sw.WriteLine("0,ReferenceTime=" + timestamp);
-            }
-            getGlobalMissionProperties();
-            support.WriteLog("Running Logger");
-            runlogger = true;
-            missionElapsedTime = FlightSceneManager.instance.missionElapsedTime;
-            StartCoroutine(writeString());
-            getHeightMap();
-            getAirports();
         }
 
         private void getGlobalMissionProperties()
         {
-
-            VTMap map = VTResources.GetMap(VTScenario.current.mapID);
-
-            string title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
-            string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",","\\,")}";
-            string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
-            using (StreamWriter sw = File.AppendText(path))
-            {
-                sw.WriteLine(title);
-                sw.WriteLine(briefing);
-                sw.WriteLine(author);
-            }
-        }
-
-        private static byte[] Color32ArrayToByteArray(Color32[] colors)
-        {
-            if (colors == null || colors.Length == 0)
-                return null;
-
-            int lengthOfColor32 = Marshal.SizeOf(typeof(Color32));
-            int length = lengthOfColor32 * colors.Length;
-            byte[] bytes = new byte[length];
-
-            GCHandle handle = default(GCHandle);
-            try
-            {
-                handle = GCHandle.Alloc(colors, GCHandleType.Pinned);
-                IntPtr ptr = handle.AddrOfPinnedObject();
-                Marshal.Copy(ptr, bytes, 0, length);
-            }
-            finally
-            {
-                if (handle != default(GCHandle))
-                    handle.Free();
-            }
-
-            return bytes;
-        }
-        // Source:
-        // https://stackoverflow.com/a/46058092
-        private static void SaveImageToRawFile(string strDeviceName, Byte[] Image, int nImageSize)
-        {
-            string strFileName = strDeviceName;
-            strFileName += ".raw";
-
-            FileStream vFileStream = new FileStream(strFileName, FileMode.Create);
-            BinaryWriter vBinaryWriter = new BinaryWriter(vFileStream);
-            for (int vIndex = 0; vIndex < nImageSize; vIndex++)
-            {
-                vBinaryWriter.Write((byte)Image[vIndex]);
-            }
-            vBinaryWriter.Close();
-            vFileStream.Close();
-        }
-
-
-        // Source 
-        // https://support.unity3d.com/hc/en-us/articles/206486626-How-can-I-get-pixels-from-unreadable-textures-?mobile_site=true
-        public Texture2D getTexture(Texture2D unreadableTexture)
-        {
-            // Create a temporary RenderTexture of the same size as the texture
-            RenderTexture tmp = RenderTexture.GetTemporary(
-                                unreadableTexture.width,
-                                unreadableTexture.height,
-                                0,
-                                RenderTextureFormat.Default,
-                                RenderTextureReadWrite.Linear);
-
-            // Blit the pixels on texture to the RenderTexture
-            UnityEngine.Graphics.Blit(unreadableTexture, tmp);
-
-            // Backup the currently set RenderTexture
-            RenderTexture previous = RenderTexture.active;
-
-            // Set the current RenderTexture to the temporary one we created
-            RenderTexture.active = tmp;
-
-            // Create a new readable Texture2D to copy the pixels to it
-            Texture2D myTexture2D = new Texture2D(unreadableTexture.width, unreadableTexture.height);
-
-
-            // Copy the pixels from the RenderTexture to the new Texture
-            myTexture2D.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
-            myTexture2D.Apply();
-
-            // Reset the active RenderTexture
-            RenderTexture.active = previous;
-
-            RenderTexture.ReleaseTemporary(tmp);
-
-            return myTexture2D;
-        }
-
-
-        public void getHeightMap()
-        {
             if (customScene)
             {
                 support.WriteLog("Getting custom map");
-                VTMapCustom map = VTResources.GetCustomMap(VTScenario.current.mapID);
-                var bytes = ImageConversion.EncodeToPNG(map.heightMap);
-                File.WriteAllBytes("test.png", bytes);
+                VTMap map = support.getMap();
+                string title = "";
+
+                if (map == null)
+                {
+                    support.WriteErrorLog("Unable to get custom map!");
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map";
+                }
+                else
+                {
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                    
+                }
+
+                string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
+                string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
+                using (StreamWriter sw = File.AppendText(path))
+                {
+                    sw.WriteLine(title);
+                    sw.WriteLine(briefing);
+                    sw.WriteLine(author);
+                }
             }
             else
             {
-                support.WriteLog("Getting built in map");
-                VTMap map = VTResources.GetMap(VTScenario.current.mapID);
-                VTMapManager[] mm = FindObjectsOfType<VTMapManager>();
-
-
-                Texture2D myTexture2D = getTexture(mm[0].fallbackHeightmap);
-
-
-
-                // Convert from RGBA32 to R16 - Shoutout to GentleLeviathan on Vtol VR Modding Discord!
-                Texture2D toBecomeHeightmap = new Texture2D(myTexture2D.width, myTexture2D.height, TextureFormat.R16, false);
-
-                Color[] newColors = new Color[myTexture2D.width * myTexture2D.height];
-
-                for (int x = 0; x < toBecomeHeightmap.width; x++)
+                VTMap map = support.getMap();
+                string title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
+                string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
+                using (StreamWriter sw = File.AppendText(path))
                 {
-                    for (int y = 0; y < toBecomeHeightmap.height; y++)
-                    {
-                        newColors[x + (y * toBecomeHeightmap.width)] = myTexture2D.GetPixel(y, x);
-                    }
-                }
-
-                toBecomeHeightmap.SetPixels(newColors);
-                toBecomeHeightmap.Apply();
-
-
-                support.WriteLog(toBecomeHeightmap.format.ToString());
-
-                byte[] rawBytes = toBecomeHeightmap.GetRawTextureData();
-
-                File.WriteAllBytes("test.data", rawBytes);
-
-
-                support.WriteLog($"Height: {toBecomeHeightmap.height} Width: {toBecomeHeightmap.width}");
-
-
-                support.WriteLog($"{map.mapLatitude}, {map.mapLongitude}");
-                support.WriteLog($"{map.mapSize}");
-
-                geoHelper.GeoLocation bottomRight = new geoHelper.GeoLocation();
-                bottomRight.Latitude = map.mapLatitude;
-                bottomRight.Longitude = map.mapLongitude;
-
-                geoHelper.GeoLocation bottomLeft = geoHelper.FindPointAtDistanceFrom(bottomRight, 270, map.mapSize);
-
-                geoHelper.GeoLocation topLeft = geoHelper.FindPointAtDistanceFrom(bottomLeft, 0, map.mapSize);
-
-                geoHelper.GeoLocation topRight = geoHelper.FindPointAtDistanceFrom(topLeft, 90, map.mapSize);
-
-
-                support.WriteLog(bottomLeft.ToString());
-                support.WriteLog(bottomRight.ToString());
-                support.WriteLog(topRight.ToString());
-                support.WriteLog(topLeft.ToString());
-                
-
-
-                try
-                {
-                    VTTHeightMap[] hm = gameObject.GetComponentsInChildren<VTTHeightMap>();
-                    if (hm.Length != 0)
-                    {
-                        if (hm[0].heightMap != null)
-                        {
-                            support.WriteLog("YESSSS!");
-                        }
-                    }
-                    else
-                    {
-                        support.WriteLog("HM is null :(");
-                    }
-
-                } catch
-                {
-                    support.WriteLog("Error getting VTTHeightmap");
+                    sw.WriteLine(title);
+                    sw.WriteLine(briefing);
+                    sw.WriteLine(author);
                 }
             }
+
+
+
         }
 
         public void getAirports()

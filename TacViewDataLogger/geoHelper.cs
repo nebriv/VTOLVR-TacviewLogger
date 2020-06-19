@@ -6,34 +6,34 @@ using System.Threading.Tasks;
 
 namespace TacViewDataLogger
 {
-    class geoHelper
+    public class geoHelper
     {
-        public static GeoLocation FindPointAtDistanceFrom(GeoLocation startPoint, double initialBearingRadians, double distanceKilometres)
+
+
+        public static GeoLocation FindPointAtDistanceFrom2(GeoLocation source, double bearing, double range)
         {
-            const double radiusEarthKilometres = 6371.01;
-            var distRatio = distanceKilometres / radiusEarthKilometres;
-            var distRatioSine = Math.Sin(distRatio);
-            var distRatioCosine = Math.Cos(distRatio);
+            const double EarthRadius = 6378137.0;
+            const double DegreesToRadians = 0.0174532925;
+            const double RadiansToDegrees = 57.2957795;
 
-            var startLatRad = DegreesToRadians(startPoint.Latitude);
-            var startLonRad = DegreesToRadians(startPoint.Longitude);
+            double latA = source.Latitude * DegreesToRadians;
+            double lonA = source.Longitude * DegreesToRadians;
+            double angularDistance = range * 1000 / EarthRadius;
+            double trueCourse = bearing * DegreesToRadians;
 
-            var startLatCos = Math.Cos(startLatRad);
-            var startLatSin = Math.Sin(startLatRad);
+            double lat = Math.Asin(Math.Sin(latA) * Math.Cos(angularDistance) + Math.Cos(latA) * Math.Sin(angularDistance) * Math.Cos(trueCourse));
 
-            var endLatRads = Math.Asin((startLatSin * distRatioCosine) + (startLatCos * distRatioSine * Math.Cos(initialBearingRadians)));
-
-            var endLonRads = startLonRad
-                + Math.Atan2(
-                    Math.Sin(initialBearingRadians) * distRatioSine * startLatCos,
-                    distRatioCosine - startLatSin * Math.Sin(endLatRads));
+            double dlon = Math.Atan2(Math.Sin(trueCourse) * Math.Sin(angularDistance) * Math.Cos(latA), Math.Cos(angularDistance) - Math.Sin(latA) * Math.Sin(lat));
+            double lon = ((lonA + dlon + Math.PI) % (Math.PI * 2)) - Math.PI;
 
             return new GeoLocation
             {
-                Latitude = RadiansToDegrees(endLatRads),
-                Longitude = RadiansToDegrees(endLonRads)
+                Latitude = lat * RadiansToDegrees,
+                Longitude = lon * RadiansToDegrees
             };
+
         }
+
 
         public struct GeoLocation
         {

@@ -33,7 +33,7 @@ namespace TacViewDataLogger
 
     public class support
     {
-
+        public VTMapManager mm;
         public static void WriteLog(string line)
         {
             Debug.Log($"{Globals.projectName} - {line}");
@@ -46,6 +46,7 @@ namespace TacViewDataLogger
 
         public static List<Actor> getActorsByRoll(Actor.Roles role)
         {
+            
             List<Actor> actors = TargetManager.instance.allActors;
             List<Actor> filtered = new List<Actor>();
 
@@ -81,13 +82,64 @@ namespace TacViewDataLogger
             return airport.GetInstanceID().ToString("X").ToLower();
         }
 
+        public static string cleanString(string input)
+        {
+            string clean = input.Replace("\\", "").Replace("/", "").Replace("<", "").Replace(">", "").Replace("*", "").Replace("\"", "").Replace("?", "").Replace(":", "").Replace("|", "").Replace(" ","");
+            return clean;
+        }
+        public VTMap getMap()
+        {
+            VTMap map;
+
+            support.WriteLog($"Looking for Map ID {VTScenario.current.mapID}");
+            map = VTResources.GetMap(VTScenario.current.mapID);
+            if (map == null)
+            {
+                VTMapCustom custommap = VTResources.GetCustomMap(VTScenario.current.mapID);
+                return custommap;
+            }
+            if (map == null)
+            {
+                VTMapCustom custommap = VTResources.GetSteamWorkshopMap(VTScenario.current.mapID);
+                return custommap;
+            }
+
+            if (mm != null)
+            {
+                if (map == null)
+                {
+                    support.WriteLog("Got map from map manager");
+                    return VTMapManager.fetch.map;
+                }
+            }
+            else
+            {
+                support.WriteLog("Map Manager is null");
+            }
 
 
-        public static Vector3D convertPositionToLatLong_raw(Vector3 position)
+
+
+            if (map != null)
+            {
+                return map;
+            }
+            else
+            {
+                support.WriteLog("Unable to find a valid VTMap!");
+                return null;
+            }
+
+        }
+
+
+        public Vector3D convertPositionToLatLong_raw(Vector3 position)
         {
             Vector3D real_loc;
 
-            real_loc = WorldPositionToGPSCoords(VTResources.GetMap(VTScenario.current.mapID), position);
+            real_loc = mm.WorldPositionToGPSCoords(position);
+
+            real_loc = WorldPositionToGPSCoords(position);
             return real_loc;
         }
 
@@ -96,14 +148,16 @@ namespace TacViewDataLogger
             Vector3D real_loc;
             string locationtext;
 
-            real_loc = WorldPositionToGPSCoords(VTResources.GetMap(VTScenario.current.mapID), position);
+            real_loc = WorldPositionToGPSCoords(position);
             locationtext = real_loc.ToString();
             return locationtext;
         }
 
 
-        public static Vector3D WorldPositionToGPSCoords(VTMap map, Vector3 worldPoint)
+        public static Vector3D WorldPositionToGPSCoords(Vector3 worldPoint)
         {
+            VTMap map = VTMapManager.fetch.map;
+
             Vector3D vector3D = VTMapManager.WorldToGlobalPoint(worldPoint);
             double z = (double)(worldPoint.y - WaterPhysics.instance.height);
             double num = vector3D.z / 111319.9;

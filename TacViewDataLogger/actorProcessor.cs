@@ -3,11 +3,12 @@ using UnityEngine;
 
 namespace TacViewDataLogger
 {
-    class actorProcessor
+    public class actorProcessor
     {
 
+        public support support = new support();
 
-        public static ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
@@ -31,10 +32,12 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public static ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
+
+            
 
             Actor targettedActor = DataGetters.getRadarLockTarget(actor.gameObject, actor);
 
@@ -51,7 +54,7 @@ namespace TacViewDataLogger
         }
 
 
-        public static ACMIDataEntry groundVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry groundVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             double headingNum = Math.Atan2(actor.transform.forward.x, actor.transform.forward.z) * Mathf.Rad2Deg;
@@ -132,7 +135,7 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public static ACMIDataEntry shipVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry shipVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)}";
@@ -141,7 +144,7 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public static ACMIDataEntry genericDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry genericDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             //Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             //entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
@@ -169,7 +172,7 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public static ACMIDataEntry missileDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry missileDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             //entry.parent = actor.parentActor.gameObject.GetInstanceID().ToString("X").ToLower();
@@ -200,7 +203,7 @@ namespace TacViewDataLogger
         }
 
 
-        public static ACMIDataEntry airportEntry(AirportManager airport)
+        public ACMIDataEntry airportEntry(AirportManager airport)
         {
             ACMIDataEntry entry = new ACMIDataEntry();
             support.WriteLog($"Processing Airport {airport.airportName}");
