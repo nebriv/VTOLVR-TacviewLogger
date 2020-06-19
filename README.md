@@ -45,7 +45,6 @@ All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLog
 	 - This is the heightmap data. Copy this file into C:\ProgramData\Tacview\Data\Terrain\Custom\. See Height Maps/Terrain for more details.
 
 ### Requirements
-
 - Tacview must be installed. I've been developing against the Advanced version, but I believe the start version should work.
 	 - https://www.tacview.net/product/about/en/
 - VTOLVR Modloader must be installed and functional.
@@ -62,6 +61,7 @@ The following parameters are generally all logged. Some ground and water vehicle
  - Callsign/Designation
 
 ### Models
+*This is currently a work in progress, VTOL VR models are not yet available*
 Models in Tacview can be added via the following steps:
  1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
  2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
@@ -71,6 +71,11 @@ Models in Tacview can be added via the following steps:
 
 ## Reporting Bugs
 
+## Planned Features
+- Additional performance optimizations. 
+- Live streaming to a Tacview Client near you! I plan on adding functionality to enable live streaming of data.
+- Additional telemetry data.
+- Support for Explosions/Chaff/Shrapnel/Smoke.
 
 ## Contributors/Resources/Special Thanks
 
@@ -84,4 +89,6 @@ Models in Tacview can be added via the following steps:
 	 - GentleLeviathan, Temperz87,  THE GREAT OVERLORD OF ALL CHEESE, and many more people. Everyone has supported me in someway or another - whether it is through long and late nights of debugging, feedback on videos and GIFS, or just supportive commentary when the rough got rougher.
  - F/A-26B on the VTOL VR Discord Channel
 	 - He provided guidance and a couple of custom plane models to use within Tacview.
+ - TheFalcon
+ 	 - He graciously created the header image you see above! Check out his awesome work at https://twitter.com/RallyPointComic
 
