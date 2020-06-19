@@ -50,6 +50,8 @@ All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLog
 	 - https://www.tacview.net/product/about/en/
 - VTOLVR Modloader must be installed and functional.
 	 - https://vtolvr-mods.com/
+- VTOL VR must be legitimately purchased and installed.
+ 	 - https://vtolvr.bdynamicsstudio.com/
 
 ### Logged Parameters
 All active actors (vehicles and projectiles) within a scene are logged.
@@ -83,6 +85,7 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
 
  - BahamutoD, of Boundless Dynamics LLC.
 	 - The creator of VTOL VR has been supportive and a great resource in my development efforts. Of course without his significant undertaking VTOL VR wouldn't exist in the first place.
+	 https://bdynamicsstudio.com/
  - KetKev and Marsh.Mello
 	 - The developers of the VTOL VR modloader have been essential to helping me dive into creating mods, debugging, and optimizing. Without their support I would have given up long ago.
 	 https://vtolvr-mods.com
