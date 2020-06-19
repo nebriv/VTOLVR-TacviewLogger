@@ -78,6 +78,7 @@ The following parameters are generally all logged. Some ground and water vehicle
 
 ### Models
 *This is currently a work in progress, VTOL VR models are not yet available*
+
 Models in Tacview can be added via the following steps:
  1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
  2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
