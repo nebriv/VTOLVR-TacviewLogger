@@ -6,11 +6,17 @@ Hello and welcome to the VTOL VR Tacview Data Logger mod! It's been long time in
 Just a couple of notes to start off with. I'm not a game developer and I don't work in C#, so I may have taken some shortcuts. I'm well aware this mod is not as well optimized as it could and should be. On large maps with numerous actors this mod *could* introduce significant lag as it loops through and collects all the necessary data. Future iterations will be able to handle this a bit better.
 
 ## Demos
+Example flight (2v2) on Akutan
 ![Example flight](https://user-images.githubusercontent.com/1825214/85156214-c06c1980-b227-11ea-9710-9b2cab264ade.gif)
+Highlighting the various Tacview models
 ![Showing off the various models](https://user-images.githubusercontent.com/1825214/85156218-c2ce7380-b227-11ea-9aa5-ab78476b107c.gif)
+Fox 2! Showing off the flares and missile tracking
 ![Fox 2!](https://user-images.githubusercontent.com/1825214/85156223-c4983700-b227-11ea-8e3b-a08a981648e5.gif)
+Even supports bombing runs!
 ![Pickle!](https://user-images.githubusercontent.com/1825214/85156234-c6fa9100-b227-11ea-8c45-c8f251bc1cea.gif)
+Rolling scissors with an ASF-33.
 ![Rolling Scissors](https://user-images.githubusercontent.com/1825214/85156236-c82bbe00-b227-11ea-9151-bc2eb9adeeda.gif)
+So thats why I wasn't cleared for a conventional landing...
 ![Whoops!](https://user-images.githubusercontent.com/1825214/85156242-c95ceb00-b227-11ea-8a1f-5f71c2ea0de1.gif)
 
 
