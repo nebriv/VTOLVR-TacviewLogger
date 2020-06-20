@@ -100,7 +100,7 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
  - BahamutoD, of Boundless Dynamics LLC.
 	 - The creator of VTOL VR has been supportive and a great resource in my development efforts. Of course without his significant undertaking VTOL VR wouldn't exist in the first place.
 	 https://bdynamicsstudio.com/
- - KetKev and Marsh.Mello
+ - Ketkev and .Marsh.Mello.
 	 - The developers of the VTOL VR modloader have been essential to helping me dive into creating mods, debugging, and optimizing. Without their support I would have given up long ago.
 	 https://vtolvr-mods.com
  -  Frantz Raia, of Raia Software inc.
