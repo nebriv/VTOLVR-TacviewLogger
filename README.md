@@ -42,7 +42,7 @@ To use the mod simply install the mod, launch the game, and enable the mod. At t
 This mod will be available for download on https://vtolvr-mods.com (*Insert direct link when uploaded*). I would recommend using the One-Click Install function to automatically download the mod.
 
 Alternatively you can download the latest release here:
-*(Placeholder for when it gets released)*
+https://github.com/nebriv/VTOLVR-TacviewLogger/releases/latest
 
 If you are manually installing you need to place the downloaded zip file in your VTOL VR Game folder inside the VTOLVR_ModLoader\mods\ directory. The mod loader should automatically detect and unzip it for you once launched.
 
