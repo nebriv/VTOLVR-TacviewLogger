@@ -78,14 +78,17 @@ The following parameters are generally all logged. Some ground and water vehicle
  - Callsign/Designation
 
 ### Models
-*This is currently a work in progress, VTOL VR models are not yet available*
-
-Models in Tacview can be added via the following steps:
+VTOL VR models can be added to Tacview via the following steps:
  1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
  2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
 
-### Height Maps/Terrain
+All VTOL VR models are properly of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
 
+### Height Maps/Terrain
+Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see customHeightMapXML.txt and heightmap_MAPNAME.data. To use this heightmap in Tacview follow the below steps.
+ 1. If you haven't done so, copy the CustomHeightmapList.xml file from C:\Program Files (x86)\Tacview (beta)\Data\Terrain\Custom into C:\ProgramData\Tacview\Data\Terrain\Custom.
+ 2. Copy the .data file to C:\ProgramData\Tacview\Data\Terrain\Custom.
+ 3. Copy the contents of the customHeightMapXML.txt file into the CustomHeightmapList.xml between the \<CustomHeightmapList\> nodes. Any XML parsing errors in this file will cause Tacview to not properly load the terrain. 
 
 ## Reporting Bugs
 If you wish to report any bugs you can do so by creating a new Issue in this Github repository or you can contact me on the VTOL VR modding discord (@nebriv0001). When reporting bugs please include as much detail as possible including steps to reproduce. If possible please include your player.log file as well as your TacviewDataLogger data for the mission(s) in question.
