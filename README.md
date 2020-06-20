@@ -55,7 +55,7 @@ All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLog
  - datalog.acmi
 	 - This is the primary datalog created for viewing in Tacview. With Tacview installed, you should simply be able to double click this and open it.
  - customHeightMapXML.txt
-	 - This is custom XML used to display the exported heightmap. This data must be copy and pasted into the file C:\ProgramData\Tacview\Data\Terrain\Custom\CustomHeightmapList.xml under the \<CustomHeightmapList\> node. If this file doesn't exist, copy the version from C:\Program Files (x86)\Tacview (beta)\Data\Terrain\Custom. The data within CustomHeightmapList.xml must be formatted properly otherwise Tacview will silently fail to load the terrain data. See Height Maps/Terrain for more details.
+	 - This is custom XML used to display the exported heightmap. See the heightmap section below.
  - heightmap_MAPName.data
 	 - This is the heightmap data. Copy this file into C:\ProgramData\Tacview\Data\Terrain\Custom\. See Height Maps/Terrain for more details.
 
