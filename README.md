@@ -90,6 +90,9 @@ Models in Tacview can be added via the following steps:
 ## Reporting Bugs
 If you wish to report any bugs you can do so by creating a new Issue in this Github repository or you can contact me on the VTOL VR modding discord (@nebriv0001). When reporting bugs please include as much detail as possible including steps to reproduce. If possible please include your player.log file as well as your TacviewDataLogger data for the mission(s) in question.
 
+### Known Issues
+- Bullets "bounce" back and are reused when fired for a long time.
+
 ## Planned Features
 - Additional performance optimizations. 
 - Live streaming to a Tacview Client near you! I plan on adding functionality to enable live streaming of data.
