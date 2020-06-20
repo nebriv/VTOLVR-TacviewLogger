@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Harmony;
+using System;
 using UnityEngine;
 
 namespace TacViewDataLogger
@@ -196,7 +197,42 @@ namespace TacViewDataLogger
             float roll = VectorUtils.SignedAngle(Vector3.up, toDirection, Vector3.Cross(Vector3.up, forward));
 
             entry.locData = $"{Math.Round(coords.y,7)} | {Math.Round(coords.x,7)} | {Math.Round(coords.z,7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
-            entry._basicTypes = "Missile";
+
+            Missile missile = Traverse.Create(actor).Field("missile").GetValue() as Missile;
+
+            if (missile != null)
+            {
+                if (missile.guidanceMode == Missile.GuidanceModes.AntiRad)
+                {
+                    entry._basicTypes = "Missile";
+                }
+                else if (missile.guidanceMode == Missile.GuidanceModes.Bomb)
+                {
+                    entry._basicTypes = "Bomb";
+                }
+                else if (missile.guidanceMode == Missile.GuidanceModes.GPS)
+                {
+                    entry._basicTypes = "Missile";
+                }
+                else if (missile.guidanceMode == Missile.GuidanceModes.Heat)
+                {
+                    entry._basicTypes = "Missile";
+                }
+                else if (missile.guidanceMode == Missile.GuidanceModes.Optical)
+                {
+                    entry._basicTypes = "Missile";
+                }
+                else if (missile.guidanceMode == Missile.GuidanceModes.Radar)
+                {
+                    entry._basicTypes = "Missile";
+                }
+                else
+                {
+                    entry._basicTypes = "Missile";
+                }
+            }
+
+            
             entry.name = actor.actorName;
             entry.callSign = actor.actorName;
             return entry;

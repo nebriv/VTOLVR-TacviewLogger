@@ -114,7 +114,7 @@ namespace TacViewDataLogger
 
             System.IO.Directory.CreateDirectory("TacViewDataLogs");
 
-            support.WriteLog("TacView Data Logger Loaded. Waiting for Scene Start!");
+            support.WriteLog($"TacView Data Logger {Globals.projectVersion} Loaded. Waiting for Scene Start!");
 
             SceneManager.sceneLoaded += SceneLoaded;
             SceneReloaded += ResetLogger;
@@ -148,7 +148,6 @@ namespace TacViewDataLogger
             }
 
 
-
             if (runlogger)
             {
                 if (arg0.buildIndex != 7 && arg0.buildIndex != 11)
@@ -158,6 +157,15 @@ namespace TacViewDataLogger
             }
         }
 
+        [HarmonyPatch(typeof(VTMapManager), "RestartCurrentScenario")]
+        class Patch
+        {
+            static void Postfix(VTMapManager __instance)
+            {
+                if (TacViewDataLogger.SceneReloaded != null)
+                    TacViewDataLogger.SceneReloaded.Invoke();
+            }
+        }
 
         void manageSamplingRate()
         {
@@ -372,6 +380,20 @@ namespace TacViewDataLogger
             }
 
         }
+        public void ResetLogger()
+        {
+            runlogger = false;
+            writeStringTask();
+            elapsedSeconds = 0f;
+            nextActionTime = 0.0f;
+            period = 0.5f;
+            knownActors = new Dictionary<String, ACMIDataEntry>();
+
+            support.WriteLog("Scene end detected. Stopping TacView Recorder");
+
+            StartCoroutine(WaitForScenario());
+
+        }
 
         public void objectiveBegin(MissionObjective obj)
         {
@@ -496,21 +518,6 @@ namespace TacViewDataLogger
             dataLog.Clear();
         }
 
-
-        public void ResetLogger()
-        {
-            runlogger = false;
-            writeStringTask();
-            elapsedSeconds = 0f;
-            nextActionTime = 0.0f;
-            period = 0.5f;
-            knownActors = new Dictionary<String, ACMIDataEntry>();
-
-            support.WriteLog("Scene end detected. Stopping TacView Recorder");
-
-            StartCoroutine(WaitForScenario());
-
-        }
 
         public void TacViewDataLogACMI()
         {
@@ -644,10 +651,6 @@ namespace TacViewDataLogger
             return entry;
         }
 
-
-
-
-
         public ACMIDataEntry buildBulletEntry(Bullet bullet)
         {
             entry = new ACMIDataEntry();
@@ -661,7 +664,6 @@ namespace TacViewDataLogger
 
             return entry;
         }
-
 
         public ACMIDataEntry buildDataEntry(Actor actor)
         {

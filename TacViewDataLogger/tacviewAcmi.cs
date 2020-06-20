@@ -1434,6 +1434,8 @@ FileVersion=2.1
 
         public string ACMIStringOld(ACMIDataEntry oldEntry = null)
         {
+            // This is no longer used currently. The comparison function is too expensive due to the reflection/recursion to be called on every actor, on every scene.
+
             string outputString = "";
             if (oldEntry != null)
             {
@@ -1447,8 +1449,6 @@ FileVersion=2.1
                 {
                     outputString = $"{objectId}{data}";
                 }
-
-                outputString = "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj";
 
             }
             else
