@@ -39,7 +39,7 @@ So thats why I wasn't cleared for a conventional landing...
 To use the mod simply install the mod, launch the game, and enable the mod. At the time of writing it is important that you enable the mod every time you start the game. Once you begin a flight scene the data logger will automatically begin recording, as of now there is no positive indication of the recording in flight.
 
 ### Requirements
-- Tacview must be installed. I've been developing against the Advanced version, but I believe the start version should work.
+- Tacview must be installed. I've been developing against the Advanced version, but I believe the starter version should work.
 	 - https://www.tacview.net/product/about/en/
 - VTOLVR Modloader must be installed and functional.
 	 - https://vtolvr-mods.com/
