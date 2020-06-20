@@ -38,6 +38,14 @@ So thats why I wasn't cleared for a conventional landing...
 ## Usage
 To use the mod simply install the mod, launch the game, and enable the mod. At the time of writing it is important that you enable the mod every time you start the game. Once you begin a flight scene the data logger will automatically begin recording, as of now there is no positive indication of the recording in flight.
 
+### Requirements
+- Tacview must be installed. I've been developing against the Advanced version, but I believe the start version should work.
+	 - https://www.tacview.net/product/about/en/
+- VTOLVR Modloader must be installed and functional.
+	 - https://vtolvr-mods.com/
+- VTOL VR must be legitimately purchased and installed.
+ 	 - https://vtolvr.bdynamicsstudio.com/
+	 
 ### Downloading and Installing
 This mod will be available for download on https://vtolvr-mods.com (*Insert direct link when uploaded*). I would recommend using the One-Click Install function to automatically download the mod.
 
@@ -58,14 +66,6 @@ All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLog
 	 - This is custom XML used to display the exported heightmap. See the heightmap section below.
  - heightmap_MAPName.data
 	 - This is the heightmap data. Copy this file into C:\ProgramData\Tacview\Data\Terrain\Custom\. See Height Maps/Terrain for more details.
-
-### Requirements
-- Tacview must be installed. I've been developing against the Advanced version, but I believe the start version should work.
-	 - https://www.tacview.net/product/about/en/
-- VTOLVR Modloader must be installed and functional.
-	 - https://vtolvr-mods.com/
-- VTOL VR must be legitimately purchased and installed.
- 	 - https://vtolvr.bdynamicsstudio.com/
 
 ### Logged Parameters
 All active actors (vehicles and projectiles) within a scene are logged.
