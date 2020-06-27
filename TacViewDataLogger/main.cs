@@ -117,7 +117,7 @@ namespace TacViewDataLogger
             support.WriteLog($"TacView Data Logger {Globals.projectVersion} Loaded. Waiting for Scene Start!");
 
             SceneManager.sceneLoaded += SceneLoaded;
-            SceneReloaded += ResetLogger;
+            SceneReloaded += RestartScenarioDetected;
 
             support.WriteLog($"VR Device Refresh Rate: {UnityEngine.XR.XRDevice.refreshRate.ToString()}");
             support.WriteLog($"Target frame time: {(1 / UnityEngine.XR.XRDevice.refreshRate).ToString()}");
@@ -287,7 +287,7 @@ namespace TacViewDataLogger
                 support.WriteLog("Scenario Ready!");
 
                 support.WriteLog("Getting Players Vehicle");
-                currentVehicle = VTOLAPI.instance.GetPlayersVehicleGameObject();
+                currentVehicle = VTOLAPI.GetPlayersVehicleGameObject();
 
                 support.WriteLog("Creating TacView Directory");
                 System.IO.Directory.CreateDirectory("TacViewDataLogs\\" + DateTime.UtcNow.ToString("yyyy-MM-dd HHmm"));
@@ -380,6 +380,22 @@ namespace TacViewDataLogger
             }
 
         }
+
+        public void RestartScenarioDetected()
+        {
+            runlogger = false;
+            writeStringTask();
+            elapsedSeconds = 0f;
+            nextActionTime = 0.0f;
+            period = 0.5f;
+            knownActors = new Dictionary<String, ACMIDataEntry>();
+
+            support.WriteLog("Scene Restart detected. Restarting TacView Recorder");
+
+            StartCoroutine(WaitForScenario());
+
+        }
+
         public void ResetLogger()
         {
             runlogger = false;
@@ -391,7 +407,7 @@ namespace TacViewDataLogger
 
             support.WriteLog("Scene end detected. Stopping TacView Recorder");
 
-            StartCoroutine(WaitForScenario());
+            //StartCoroutine(WaitForScenario());
 
         }
 
