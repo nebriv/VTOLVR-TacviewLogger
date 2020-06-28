@@ -86,12 +86,25 @@ namespace TacViewDataLogger
         public static Actor getRadarLockTarget(GameObject vehicle, Actor player)
         {
             Actor detectedActor = new Actor();
+
+            if (player.name == "VTOL4")
+            {
+                return null;
+            }
+
             try
             {
                 LockingRadar radar = vehicle.GetComponentInChildren<LockingRadar>();
-                if (radar.IsLocked())
+                if (radar != null)
                 {
-                    return radar.currentLock.actor;
+                    if (radar.IsLocked())
+                    {
+                        return radar.currentLock.actor;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
