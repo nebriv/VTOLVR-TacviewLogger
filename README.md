@@ -88,7 +88,7 @@ All VTOL VR models are properly of Boundless Dynamics, LLC. except the F-45 and 
 Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see customHeightMapXML.txt and heightmap_MAPNAME.data. To use this heightmap in Tacview follow the below steps.
  1. If you haven't done so, copy the CustomHeightmapList.xml file from C:\Program Files (x86)\Tacview (beta)\Data\Terrain\Custom into C:\ProgramData\Tacview\Data\Terrain\Custom.
  2. Copy the .data file to C:\ProgramData\Tacview\Data\Terrain\Custom.
- 3. Copy the contents of the customHeightMapXML.txt file (Except for "\<?xml version="1.0" encoding="utf-8"?\>") into the CustomHeightmapList.xml between the \<CustomHeightmapList\> nodes. Any XML parsing errors in this file will cause Tacview to not properly load the terrain. 
+ 3. Copy the contents of the customHeightMapXML.txt file (Except for "\<?xml version="1.0" encoding="utf-8"?\>") into the new CustomHeightmapList.xml (C:\ProgramData\Tacview\Data\Terrain\Custom) between the \<CustomHeightmapList\> nodes. Any XML parsing errors in this file will cause Tacview to not properly load the terrain. 
 
 ## Reporting Bugs
 If you wish to report any bugs you can do so by creating a new Issue in this Github repository or you can contact me on the VTOL VR modding discord (@nebriv0001). When reporting bugs please include as much detail as possible including steps to reproduce. If possible please include your player.log file as well as your TacviewDataLogger data for the mission(s) in question.
