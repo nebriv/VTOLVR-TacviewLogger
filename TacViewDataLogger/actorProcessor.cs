@@ -202,33 +202,29 @@ namespace TacViewDataLogger
 
             if (missile != null)
             {
-                if (missile.guidanceMode == Missile.GuidanceModes.AntiRad)
+                switch(missile.guidanceMode)
                 {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Bomb)
-                {
-                    entry._basicTypes = "Bomb";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.GPS)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Heat)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Optical)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Radar)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else
-                {
-                    entry._basicTypes = "Missile";
+                    case Missile.GuidanceModes.AntiRad:
+                    case Missile.GuidanceModes.GPS:
+                    case Missile.GuidanceModes.Optical:
+                    case Missile.GuidanceModes.Radar:
+                        entry._basicTypes = "Missile";
+                        break;
+                    case Missile.GuidanceModes.Heat:
+                        entry._basicTypes = "Missile";
+                        if (missile.heatSeeker.likelyTargetActor != null)
+                        {
+                            entry.lockedTargetMode = "1";
+                            entry.lockedTarget = support.getActorID(missile.heatSeeker.likelyTargetActor);
+                        }
+                        else
+                        {
+                            entry.lockedTargetMode = "0";
+                        }
+                        break;
+                    case Missile.GuidanceModes.Bomb:
+                        entry._basicTypes = "Bomb";
+                        break;
                 }
             }
 

@@ -22,7 +22,7 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "Nebriv";
+        public static string projectAuthor = "TytanRock";
         public static string projectVersion = "v2.2";
 
     }
@@ -62,9 +62,6 @@ namespace TacViewDataLogger
         public ACMIDataEntry newEntry;
         public ACMIDataEntry oldEntry;
         public ACMIDataEntry entry;
-
-        public List<CMFlare> flares;
-        public List<Bullet> bullets;
 
 
         public double saveTime;
@@ -496,19 +493,13 @@ namespace TacViewDataLogger
             }
         }
 
-        public List<CMFlare> getFlares()
+        public IEnumerable<CMFlare> getFlares()
         {
-            flares = new List<CMFlare>(FindObjectsOfType<CMFlare>());
-
-            return flares;
+            return FindObjectsOfType<CMFlare>();
         }
-
-
-        public List<Bullet> getBullets()
+        public IEnumerable<Bullet> getBullets()
         {
-            bullets = new List<Bullet>(FindObjectsOfType<Bullet>());
-
-            return bullets;
+            return FindObjectsOfType<Bullet>();
         }
 
         public IEnumerator writeString()
@@ -530,7 +521,14 @@ namespace TacViewDataLogger
 
         public void writeStringTask()
         {
-            File.AppendAllLines(path, dataLog);
+            using (var writer = new StreamWriter(path, append: true))
+            {
+                foreach(var line in dataLog)
+                {
+                    writer.Write(line);
+                    writer.Write('\n');
+                }
+            }
             dataLog.Clear();
         }
 
@@ -544,28 +542,28 @@ namespace TacViewDataLogger
 
             // Processing game actors
 
-            for (int i = 0; i < actors.Count; i++)
+            foreach (var actor in actors)
             {
                     
                 acmiString = "";
-                newEntry = buildDataEntry(actors[i]);
+                newEntry = buildDataEntry(actor);
 
-                actorIDList.Add(support.getActorID(actors[i]));
+                actorIDList.Add(support.getActorID(actor));
 
                 // If this is already a tracked actor
-                if (knownActors.ContainsKey(support.getActorID(actors[i])))
+                if (knownActors.ContainsKey(support.getActorID(actor)))
                 {
-                    oldEntry = knownActors[support.getActorID(actors[i])];
+                    oldEntry = knownActors[support.getActorID(actor)];
 
                     // Diff the old entry and the new entry. Update the old entry with the new entry.
                     //acmiString = newEntry.ACMIString();
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getActorID(actors[i])] = newEntry;
+                    knownActors[support.getActorID(actor)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getActorID(actors[i]), newEntry);
+                    knownActors.Add(support.getActorID(actor), newEntry);
                 }
                 if ((acmiString != "") && (acmiString.Contains(",")))
                 {
@@ -574,25 +572,24 @@ namespace TacViewDataLogger
             }
 
             // Getting flares and processing them
-            flares = getFlares();
             acmiString = "";
-            for (int i = 0; i < flares.Count; i++)
+            foreach (var flare in getFlares())
             {
                 acmiString = "";
-                actorIDList.Add(support.getFlareID(flares[i]));
+                actorIDList.Add(support.getFlareID(flare));
 
-                newEntry = buildFlareEntry(flares[i]);
+                newEntry = buildFlareEntry(flare);
                 
-                if (knownActors.ContainsKey(support.getFlareID(flares[i])))
+                if (knownActors.ContainsKey(support.getFlareID(flare)))
                 {
-                    oldEntry = knownActors[support.getFlareID(flares[i])];
+                    oldEntry = knownActors[support.getFlareID(flare)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getFlareID(flares[i])] = newEntry;
+                    knownActors[support.getFlareID(flare)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getFlareID(flares[i]), newEntry);
+                    knownActors.Add(support.getFlareID(flare), newEntry);
                 }
                 if (acmiString != "")
                 {
@@ -601,24 +598,23 @@ namespace TacViewDataLogger
             }
 
             // Getting bullets and processing them
-            bullets = getBullets();
-            for (int i = 0; i < bullets.Count; i++)
+            foreach (var bullet in getBullets())
             {
 
-                actorIDList.Add(support.getBulletID(bullets[i]));
+                actorIDList.Add(support.getBulletID(bullet));
 
-                newEntry = buildBulletEntry(bullets[i]);
+                newEntry = buildBulletEntry(bullet);
                 acmiString = "";
-                if (knownActors.ContainsKey(support.getBulletID(bullets[i])))
+                if (knownActors.ContainsKey(support.getBulletID(bullet)))
                 {
-                    oldEntry = knownActors[support.getBulletID(bullets[i])];
+                    oldEntry = knownActors[support.getBulletID(bullet)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getBulletID(bullets[i])] = newEntry;
+                    knownActors[support.getBulletID(bullet)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getBulletID(bullets[i]), newEntry);
+                    knownActors.Add(support.getBulletID(bullet), newEntry);
                 }
                 if (acmiString != "")
                 {
@@ -646,9 +642,9 @@ namespace TacViewDataLogger
             }
 
 
-            for (int i = 0; i < removedActors.Count; i++)
+            foreach(var removedActor in removedActors)
             {
-                knownActors.Remove(removedActors[i]);
+                knownActors.Remove(removedActor);
             }
 
         }

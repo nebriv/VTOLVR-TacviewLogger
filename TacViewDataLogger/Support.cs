@@ -72,6 +72,11 @@ namespace TacViewDataLogger
             return flare.gameObject.GetInstanceID().ToString("X").ToLower();
         }
 
+        public static string getChaffID(ChaffCountermeasure chaff)
+        {
+            return chaff.gameObject.GetInstanceID().ToString("X").ToLower();
+        }
+
         public static string getBulletID(Bullet bullet)
         {
             return bullet.gameObject.GetInstanceID().ToString("X").ToLower();
