@@ -55,9 +55,7 @@ namespace TacViewDataLogger
 
 
         public string acmiString;
-        List<String> actorIDList;
         List<Actor> actors;
-        List<String> removedActors;
 
         public ACMIDataEntry newEntry;
         public ACMIDataEntry oldEntry;
@@ -497,6 +495,25 @@ namespace TacViewDataLogger
         {
             return FindObjectsOfType<CMFlare>();
         }
+        public IEnumerable<ChaffCountermeasure.Chaff> getChaff()
+        {
+            var allChaff = new List<ChaffCountermeasure.Chaff>();
+            foreach (var chaffCM in FindObjectsOfType<ChaffCountermeasure>())
+            {
+                foreach(ChaffCountermeasure.Chaff ch in Traverse.Create(chaffCM).Field("chaffs").GetValue() as ChaffCountermeasure.Chaff[])
+                {
+                    if(ch.decayed)
+                    {
+                        /* Do nothing */
+                    } 
+                    else
+                    {
+                        allChaff.Add(ch);
+                    }
+                }
+            }
+            return allChaff;
+        }
         public IEnumerable<Bullet> getBullets()
         {
             return FindObjectsOfType<Bullet>();
@@ -537,7 +554,6 @@ namespace TacViewDataLogger
         {
             actors = TargetManager.instance.allActors;
 
-            actorIDList = new List<String>();
             acmiString = "";
 
             // Processing game actors
@@ -546,24 +562,24 @@ namespace TacViewDataLogger
             {
                     
                 acmiString = "";
+                support.UpdateID(actor);
+
                 newEntry = buildDataEntry(actor);
 
-                actorIDList.Add(support.getActorID(actor));
-
                 // If this is already a tracked actor
-                if (knownActors.ContainsKey(support.getActorID(actor)))
+                if (knownActors.ContainsKey(support.GetObjectID(actor)))
                 {
-                    oldEntry = knownActors[support.getActorID(actor)];
+                    oldEntry = knownActors[support.GetObjectID(actor)];
 
                     // Diff the old entry and the new entry. Update the old entry with the new entry.
                     //acmiString = newEntry.ACMIString();
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getActorID(actor)] = newEntry;
+                    knownActors[support.GetObjectID(actor)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getActorID(actor), newEntry);
+                    knownActors.Add(support.GetObjectID(actor), newEntry);
                 }
                 if ((acmiString != "") && (acmiString.Contains(",")))
                 {
@@ -576,20 +592,45 @@ namespace TacViewDataLogger
             foreach (var flare in getFlares())
             {
                 acmiString = "";
-                actorIDList.Add(support.getFlareID(flare));
+                support.UpdateID(flare);
 
                 newEntry = buildFlareEntry(flare);
                 
-                if (knownActors.ContainsKey(support.getFlareID(flare)))
+                if (knownActors.ContainsKey(support.GetObjectID(flare)))
                 {
-                    oldEntry = knownActors[support.getFlareID(flare)];
+                    oldEntry = knownActors[support.GetObjectID(flare)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getFlareID(flare)] = newEntry;
+                    knownActors[support.GetObjectID(flare)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getFlareID(flare), newEntry);
+                    knownActors.Add(support.GetObjectID(flare), newEntry);
+                }
+                if (acmiString != "")
+                {
+                    dataLog.Enqueue(acmiString);
+                }
+            }
+            // Getting Chaff and processing them
+            acmiString = "";
+            foreach (var chaff in getChaff())
+            {
+                acmiString = "";
+                support.UpdateID(chaff);
+
+                newEntry = buildChaffEntry(chaff);
+
+                if (knownActors.ContainsKey(support.GetObjectID(chaff)))
+                {
+                    oldEntry = knownActors[support.GetObjectID(chaff)];
+                    acmiString = newEntry.ACMIString(oldEntry);
+                    knownActors[support.GetObjectID(chaff)] = newEntry;
+                }
+                else
+                {
+                    acmiString = newEntry.ACMIString();
+                    knownActors.Add(support.GetObjectID(chaff), newEntry);
                 }
                 if (acmiString != "")
                 {
@@ -601,20 +642,20 @@ namespace TacViewDataLogger
             foreach (var bullet in getBullets())
             {
 
-                actorIDList.Add(support.getBulletID(bullet));
+                support.UpdateID(bullet);
 
                 newEntry = buildBulletEntry(bullet);
                 acmiString = "";
-                if (knownActors.ContainsKey(support.getBulletID(bullet)))
+                if (knownActors.ContainsKey(support.GetObjectID(bullet)))
                 {
-                    oldEntry = knownActors[support.getBulletID(bullet)];
+                    oldEntry = knownActors[support.GetObjectID(bullet)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getBulletID(bullet)] = newEntry;
+                    knownActors[support.GetObjectID(bullet)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getBulletID(bullet), newEntry);
+                    knownActors.Add(support.GetObjectID(bullet), newEntry);
                 }
                 if (acmiString != "")
                 {
@@ -623,37 +664,28 @@ namespace TacViewDataLogger
             }
 
 
-            removedActors = new List<String>();
-
-            foreach (String actor in knownActors.Keys)
+            foreach (var actor in support.ClearAndGetOldObjectIds())
             {
-                if (!actorIDList.Contains(actor))
-                {
-                    removedActors.Add(actor);
+                /* If we weren't updated, then we don't exist anymore */
 
-                    
-                    // Need to handle checks for non vehicle actors
-                    //dataLog.Enqueue(acmi.ACMIEvent("Destroyed", null, actor));
-                    //
-                    
-                    dataLog.Enqueue($"-{actor}");
+                // Need to handle checks for non vehicle actors
+                //if (knownActors[actor]._basicTypes.Contains("FixedWing") ||
+                //    knownActors[actor]._basicTypes.Contains("Vehicle"))
+                //{
+                //    /* If this is a vehicle, we can send the destroyed ACMI event */
+                //    dataLog.Enqueue(acmi.ACMIEvent("Destroyed", null, actor));
+                //}
 
-                }
+                dataLog.Enqueue($"-{actor}");
+                knownActors.Remove(actor);
             }
-
-
-            foreach(var removedActor in removedActors)
-            {
-                knownActors.Remove(removedActor);
-            }
-
         }
 
         public ACMIDataEntry buildFlareEntry(CMFlare flare)
         {
             ACMIDataEntry entry = new ACMIDataEntry();
 
-            entry.objectId = support.getFlareID(flare);
+            entry.objectId = support.GetObjectID(flare);
 
             Vector3D coords = support.convertPositionToLatLong_raw(flare.transform.position);
 
@@ -662,12 +694,25 @@ namespace TacViewDataLogger
 
             return entry;
         }
+        public ACMIDataEntry buildChaffEntry(ChaffCountermeasure.Chaff chaff)
+        {
+            ACMIDataEntry entry = new ACMIDataEntry();
+
+            entry.objectId = support.GetObjectID(chaff);
+
+            Vector3D coords = support.convertPositionToLatLong_raw(chaff.position);
+
+            entry.locData = $"{coords.y} | {coords.x} | {coords.z}";
+            entry._specificTypes = "Chaff";
+
+            return entry;
+        }
 
         public ACMIDataEntry buildBulletEntry(Bullet bullet)
         {
             entry = new ACMIDataEntry();
 
-            entry.objectId = support.getBulletID(bullet);
+            entry.objectId = support.GetObjectID(bullet);
 
             Vector3D coords = support.convertPositionToLatLong_raw(bullet.transform.position);
 
@@ -680,7 +725,7 @@ namespace TacViewDataLogger
         public ACMIDataEntry buildDataEntry(Actor actor)
         {
             entry = new ACMIDataEntry();
-            entry.objectId = actor.gameObject.GetInstanceID().ToString("X").ToLower();
+            entry.objectId = support.GetObjectID(actor);
 
             //actorName = actor's name in the mission
             //name = actor's unit name

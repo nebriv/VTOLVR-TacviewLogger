@@ -33,6 +33,37 @@ namespace TacViewDataLogger
 
     public class support
     {
+        struct ActorEntryValue
+        {
+            public ActorEntryValue(String uniqueID)
+            {
+                this.uniqueID = uniqueID;
+                recentlyAdded = true;
+                updated = true;
+            }
+            public void Update()
+            {
+                updated = true;
+            }
+            public void Clear()
+            {
+                recentlyAdded = false;
+                updated = false;
+            }
+            public String uniqueID;
+            public bool recentlyAdded;
+            public bool updated;
+        }
+        static Dictionary<object, ActorEntryValue> objectIDs = new Dictionary<object, ActorEntryValue>();
+
+        private static long nextID = 0x2000;
+        public static string GenerateUniqueID()
+        {
+            support.WriteLog("Leasing id " + nextID.ToString("X"));
+            return nextID++.ToString("X").ToLower();
+        }
+
+
         public VTMapManager mm;
         public static void WriteLog(string line)
         {
@@ -62,26 +93,53 @@ namespace TacViewDataLogger
 
         }
 
-        public static string getActorID(Actor actor)
+        public static string GetObjectID(object obj)
         {
-            return actor.gameObject.GetInstanceID().ToString("X").ToLower();
+            if (!objectIDs.ContainsKey(obj))
+            {
+                /* If we don't have this object, return "0" to ensure it doesn't conflict with a known ID */
+                return "0";
+            }
+            return objectIDs[obj].uniqueID;
         }
-
-        public static string getFlareID(CMFlare flare)
+        public static void UpdateID(object obj)
         {
-            return flare.gameObject.GetInstanceID().ToString("X").ToLower();
+            if(!objectIDs.ContainsKey(obj))
+            {
+                objectIDs[obj] = new ActorEntryValue(GenerateUniqueID());
+            }
+            else
+            {
+                ActorEntryValue tmp;
+                objectIDs.TryGetValue(obj, out tmp);
+                tmp.Update();
+                objectIDs[obj] = tmp;
+            }
         }
-
-        public static string getChaffID(ChaffCountermeasure chaff)
+        public static IEnumerable<string> ClearAndGetOldObjectIds()
         {
-            return chaff.gameObject.GetInstanceID().ToString("X").ToLower();
-        }
+            var notUpdated = new List<string>();
 
-        public static string getBulletID(Bullet bullet)
-        {
-            return bullet.gameObject.GetInstanceID().ToString("X").ToLower();
-        }
+            var newDictionary = new Dictionary<object, ActorEntryValue>();
 
+            foreach(var obj in objectIDs)
+            {
+                if(!obj.Value.updated)
+                {
+                    notUpdated.Add(obj.Value.uniqueID);
+
+                    WriteLog("Object " + obj.Key.ToString() + " with " + obj.Value.uniqueID + " is getting deleted");
+                }
+                else
+                {
+                    ActorEntryValue tmp = obj.Value;
+                    tmp.Clear();
+                    newDictionary[obj.Key] = tmp;
+                }
+            }
+            objectIDs = newDictionary;
+            return notUpdated;
+        }
         public static string getAirportID(AirportManager airport)
         {
             return airport.GetInstanceID().ToString("X").ToLower();
