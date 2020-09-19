@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using UnityEngine.Events;
+using System.Text;
 
 namespace TacViewDataLogger
 {
@@ -49,7 +50,7 @@ namespace TacViewDataLogger
 
         public ACMI acmi;
 
-        public Queue<string> dataLog = new Queue<string>();
+        public StringBuilder dataLog = new StringBuilder();
 
         public Dictionary<String, ACMIDataEntry> knownActors = new Dictionary<String, ACMIDataEntry>();
 
@@ -72,7 +73,7 @@ namespace TacViewDataLogger
 
 
         private float nextActionTime = 0.0f;
-        public float period = 0.5f;
+        public float period = 0.25f;
 
         public int frameRateLogSize = 90;
 
@@ -202,6 +203,8 @@ namespace TacViewDataLogger
 
                 if ((Time.time > nextActionTime) || (nextActionTime == 0.0f))
                 {
+                    Stopwatch timer = new Stopwatch();
+                    timer.Start();
 
                     if (frameRateLog.Count == frameRateLogSize)
                     {
@@ -211,7 +214,7 @@ namespace TacViewDataLogger
                     nextActionTime += period;
 
                     elapsedSeconds += period;
-                    dataLog.Enqueue($"#{elapsedSeconds}");
+                    dataLog.Append($"\n#{elapsedSeconds}");
                     try
                     {
 
@@ -234,6 +237,8 @@ namespace TacViewDataLogger
                     {
                         support.WriteErrorLog("Error getting data." + ex.ToString());
                     }
+                    timer.Stop();
+                    Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
                 }
             }
 
@@ -408,16 +413,16 @@ namespace TacViewDataLogger
 
         public void objectiveBegin(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
+            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
         }
 
         public void objectiveComplete(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
+            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
         }
         public void objectiveFail(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
+            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
         }
 
         private void getObjectives()
@@ -486,7 +491,7 @@ namespace TacViewDataLogger
             {
                 newEntry = actorProcessor.airportEntry(manager);
 
-                dataLog.Enqueue(newEntry.ACMIString());
+                dataLog.Append("\n" +newEntry.ACMIString());
 
             }
         }
@@ -518,13 +523,17 @@ namespace TacViewDataLogger
         {
             return FindObjectsOfType<Bullet>();
         }
+        public IEnumerable<Rocket> getRockets()
+        {
+            return Rocket.allFiredRockets;
+        }
 
         public IEnumerator writeString()
         {
             while (runlogger)
             {
 
-                if (dataLog.Count > 0)
+                if (dataLog.Length > 0)
                 {
                     //File.AppendAllLines(path, dataLog);
                     //dataLog.Clear();
@@ -540,11 +549,8 @@ namespace TacViewDataLogger
         {
             using (var writer = new StreamWriter(path, append: true))
             {
-                foreach(var line in dataLog)
-                {
-                    writer.Write(line);
-                    writer.Write('\n');
-                }
+                /* Maybe this will be faster than using a queue? */
+                writer.Write(dataLog.ToString());
             }
             dataLog.Clear();
         }
@@ -583,7 +589,7 @@ namespace TacViewDataLogger
                 }
                 if ((acmiString != "") && (acmiString.Contains(",")))
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" +acmiString);
                 }
             }
 
@@ -609,7 +615,7 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" +acmiString);
                 }
             }
             // Getting Chaff and processing them
@@ -634,7 +640,7 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" +acmiString);
                 }
             }
 
@@ -661,7 +667,33 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" +acmiString);
+                }
+            }
+
+            foreach(var rocket in getRockets())
+            {
+                /* If this isn't active, don't update it or use it */
+                if (!rocket.isActiveAndEnabled) continue;
+
+                support.UpdateID(rocket);
+
+                newEntry = buildRocketEntry(rocket);
+                acmiString = "";
+                if (knownActors.ContainsKey(support.GetObjectID(rocket)))
+                {
+                    oldEntry = knownActors[support.GetObjectID(rocket)];
+                    acmiString = newEntry.ACMIString(oldEntry);
+                    knownActors[support.GetObjectID(rocket)] = newEntry;
+                }
+                else
+                {
+                    acmiString = newEntry.ACMIString();
+                    knownActors.Add(support.GetObjectID(rocket), newEntry);
+                }
+                if (acmiString != "")
+                {
+                    dataLog.Append("\n" +acmiString);
                 }
             }
 
@@ -675,10 +707,10 @@ namespace TacViewDataLogger
                 //    knownActors[actor]._basicTypes.Contains("Vehicle"))
                 //{
                 //    /* If this is a vehicle, we can send the destroyed ACMI event */
-                //    dataLog.Enqueue(acmi.ACMIEvent("Destroyed", null, actor));
+                //    dataLog.Append("\n" +acmi.ACMIEvent("Destroyed", null, actor));
                 //}
 
-                dataLog.Enqueue($"-{actor}");
+                dataLog.Append("\n" +$"-{actor}");
                 knownActors.Remove(actor);
             }
         }
@@ -720,6 +752,38 @@ namespace TacViewDataLogger
 
             entry.locData = $"{coords.y} | {coords.x} | {coords.z}";
             entry._specificTypes = "Bullet";
+
+            return entry;
+        }
+        
+        public ACMIDataEntry buildRocketEntry(Rocket rocket, float customOffset = 0f)
+        {
+            entry = new ACMIDataEntry();
+
+            entry.name = rocket.name;
+
+            Vector3D coords = support.convertPositionToLatLong_raw(rocket.transform.position);
+
+            double headingNum = Math.Atan2(rocket.transform.forward.x, rocket.transform.forward.z) * Mathf.Rad2Deg;
+
+            if (headingNum < 0)
+            {
+                headingNum += 360;
+            }
+
+            Vector3 forward = rocket.transform.forward;
+            forward.y = 0f;
+
+            float pitch = VectorUtils.SignedAngle(forward, rocket.transform.forward, Vector3.up);
+
+            Vector3 toDirection = Vector3.ProjectOnPlane(rocket.transform.up, forward);
+            float roll = VectorUtils.SignedAngle(Vector3.up, toDirection, Vector3.Cross(Vector3.up, forward));
+
+            entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
+
+            entry.objectId = support.GetObjectID(rocket);
+
+            entry._specificTypes = "Rocket";
 
             return entry;
         }

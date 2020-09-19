@@ -40,6 +40,7 @@ namespace TacViewDataLogger
                 this.uniqueID = uniqueID;
                 recentlyAdded = true;
                 updated = true;
+                needsUpdating = true;
             }
             public void Update()
             {
@@ -53,6 +54,7 @@ namespace TacViewDataLogger
             public String uniqueID;
             public bool recentlyAdded;
             public bool updated;
+            public bool needsUpdating;
         }
         static Dictionary<object, ActorEntryValue> objectIDs = new Dictionary<object, ActorEntryValue>();
         static List<string> removedObjectIDs = new List<string>();
@@ -60,7 +62,6 @@ namespace TacViewDataLogger
         private static long nextID = 0x2000;
         public static string GenerateUniqueID()
         {
-            support.WriteLog("Leasing id " + nextID.ToString("X"));
             return nextID++.ToString("X").ToLower();
         }
 
@@ -125,24 +126,22 @@ namespace TacViewDataLogger
         {
             if (!objectIDs.ContainsKey(obj))
             {
-                /* If we don't have this object, return "0" to ensure it doesn't conflict with a known ID */
-                return "0";
+                /* If we don't have this object, return "1" to ensure it doesn't conflict with a known ID */
+                return "1";
             }
             return objectIDs[obj].uniqueID;
         }
-        public static void UpdateID(object obj)
+        public static void UpdateID(object obj, bool needsUpdating = true)
         {
-            if(!objectIDs.ContainsKey(obj))
+            if (!objectIDs.ContainsKey(obj))
             {
                 objectIDs[obj] = new ActorEntryValue(GenerateUniqueID());
             }
-            else
-            {
-                ActorEntryValue tmp;
-                objectIDs.TryGetValue(obj, out tmp);
-                tmp.Update();
-                objectIDs[obj] = tmp;
-            }
+            ActorEntryValue tmp;
+            objectIDs.TryGetValue(obj, out tmp);
+            tmp.Update();
+            tmp.needsUpdating = needsUpdating;
+            objectIDs[obj] = tmp;
         }
         public static IEnumerable<string> ClearAndGetOldObjectIds()
         {
@@ -152,11 +151,9 @@ namespace TacViewDataLogger
 
             foreach(var obj in objectIDs)
             {
-                if(!obj.Value.updated)
+                if(!obj.Value.updated && obj.Value.needsUpdating)
                 {
                     notUpdated.Add(obj.Value.uniqueID);
-
-                    WriteLog("Object " + obj.Key.ToString() + " with " + obj.Value.uniqueID + " is getting deleted");
                 }
                 else
                 {
@@ -172,10 +169,6 @@ namespace TacViewDataLogger
             removedObjectIDs = new List<string>();
 
             return notUpdated;
-        }
-        public static string getAirportID(AirportManager airport)
-        {
-            return airport.GetInstanceID().ToString("X").ToLower();
         }
 
         public static string cleanString(string input)

@@ -13,7 +13,6 @@ namespace TacViewDataLogger
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
-            entry._objectClass = "Air";
             entry._basicTypes = "FixedWing";
             entry.callSign = actor.designation.ToString();
             entry.name = actor.actorName;
@@ -83,7 +82,6 @@ namespace TacViewDataLogger
             {
                 entry.lockedTarget = support.GetObjectID(actor.currentlyTargetingActor);
             }
-            entry._objectClass = "Ground";
 
 
             // This is all done in the VTOL XML file now! Easier to update.
@@ -179,9 +177,6 @@ namespace TacViewDataLogger
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
 
-            entry.name = actor.name;
-            entry._objectClass = "Weapon";
-
             double headingNum = Math.Atan2(actor.transform.forward.x, actor.transform.forward.z) * Mathf.Rad2Deg;
 
             if (headingNum < 0)
@@ -272,7 +267,9 @@ namespace TacViewDataLogger
         {
             ACMIDataEntry entry = new ACMIDataEntry();
             support.WriteLog($"Processing Airport {airport.airportName}");
-            entry.objectId = support.getAirportID(airport);
+            support.UpdateID(airport, false);
+
+            entry.objectId = support.GetObjectID(airport);
 
             if (airport.team == Teams.Allied)
             {
