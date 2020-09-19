@@ -641,6 +641,8 @@ namespace TacViewDataLogger
             // Getting bullets and processing them
             foreach (var bullet in getBullets())
             {
+                /* If this isn't active, don't update it or use it */
+                if (!bullet.isActiveAndEnabled) continue;
 
                 support.UpdateID(bullet);
 

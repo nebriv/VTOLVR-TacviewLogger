@@ -55,12 +55,40 @@ namespace TacViewDataLogger
             public bool updated;
         }
         static Dictionary<object, ActorEntryValue> objectIDs = new Dictionary<object, ActorEntryValue>();
+        static List<string> removedObjectIDs = new List<string>();
 
         private static long nextID = 0x2000;
         public static string GenerateUniqueID()
         {
             support.WriteLog("Leasing id " + nextID.ToString("X"));
             return nextID++.ToString("X").ToLower();
+        }
+
+        /* Since the bullets come from a pool, we have to access the bullet's KillBullet method
+         * in order to keep track of which bullets are still being used
+         * By keeping track of the removed bullets we can maintain a list of "killed" bullets
+         * and add them to the removed list when it's called, and we can remove the bullet from the dictionary
+         * so we don't keep track of it and a new entry is created when a new bullet is fired
+         */
+        [Harmony.HarmonyPatch(typeof(Bullet), "KillBullet")]
+        class BulletKillPatch
+        {
+            static void Postfix(object __instance)
+            {
+                if (!objectIDs.ContainsKey(__instance)) return;
+                removedObjectIDs.Add(GetObjectID(__instance));
+                objectIDs.Remove(__instance);
+            }
+        }
+        [Harmony.HarmonyPatch(typeof(FlareCountermeasure), "OnFlareDecayed")]
+        class FlareDecayPatch
+        {
+            static void Postfix(CMFlare f)
+            {
+                if (!objectIDs.ContainsKey(f)) return;
+                removedObjectIDs.Add(GetObjectID(f));
+                objectIDs.Remove(f);
+            }
         }
 
 
@@ -138,6 +166,11 @@ namespace TacViewDataLogger
                 }
             }
             objectIDs = newDictionary;
+
+            /* Add the objects removed via patches */
+            notUpdated.AddRange(removedObjectIDs);
+            removedObjectIDs = new List<string>();
+
             return notUpdated;
         }
         public static string getAirportID(AirportManager airport)
