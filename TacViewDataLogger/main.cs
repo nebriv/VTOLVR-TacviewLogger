@@ -23,8 +23,8 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "TytanRock";
-        public static string projectVersion = "v2.2";
+        public static string projectAuthor = "Nebriv, TytanRock";
+        public static string projectVersion = "v3.0";
 
     }
 
@@ -215,28 +215,11 @@ namespace TacViewDataLogger
 
                     elapsedSeconds += period;
                     dataLog.Append($"\n#{elapsedSeconds}");
-                    try
-                    {
-
-                        GCLatencyMode oldMode = GCSettings.LatencyMode;
-                        RuntimeHelpers.PrepareConstrainedRegions();
-
-                        try
-                        {
-                            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-
-                            TacViewDataLogACMI();
-                        }
-                        finally
-                        {
-                            GCSettings.LatencyMode = oldMode;
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        support.WriteErrorLog("Error getting data." + ex.ToString());
-                    }
+                    //GCLatencyMode oldMode = GCSettings.LatencyMode;
+                    //RuntimeHelpers.PrepareConstrainedRegions();
+                    //GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                    TacViewDataLogACMI();
+                    //GCSettings.LatencyMode = oldMode;
                     timer.Stop();
                     Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
                 }
@@ -796,27 +779,29 @@ namespace TacViewDataLogger
             //actorName = actor's name in the mission
             //name = actor's unit name
 
-
+            bool isRed;
             if (actor.team.ToString() == "Allied")
             {
                 entry.color = "Blue";
+                isRed = false;
             }
             else
             {
                 entry.color = "Red";
+                isRed = true;
             }
 
             if (PilotSaveManager.current.pilotName == actor.actorName)
             {
 
-                entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
-                entry = actorProcessor.playerVehicleDataEntry(actor, entry, customSceneOffset);
+                entry = actorProcessor.airVehicleDataEntry(actor, entry, isRed, customSceneOffset);
+                entry = actorProcessor.playerVehicleDataEntry(actor, entry, isRed, customSceneOffset);
 
             }
             else if (actor.role == Actor.Roles.Air)
             {
                 //support.WriteLog("Air");
-                entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
+                entry = actorProcessor.airVehicleDataEntry(actor, entry, isRed, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.Ground)
             {

@@ -9,12 +9,12 @@ namespace TacViewDataLogger
 
         public support support = new support();
 
-        public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
             entry._basicTypes = "FixedWing";
-            entry.callSign = actor.designation.ToString();
+            entry.callSign = support.GetObjectCallsign(actor, isRed);
             entry.name = actor.actorName;
             if (actor.currentlyTargetingActor != null)
             {
@@ -33,7 +33,7 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
@@ -48,7 +48,7 @@ namespace TacViewDataLogger
             }
 
             entry.pilot = actor.actorName;
-            entry.callSign = actor.actorName;
+            entry.callSign = support.GetObjectCallsign(actor, isRed);
             entry.name = actor.name.Replace("(Clone)", "");
 
             return entry;

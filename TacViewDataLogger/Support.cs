@@ -35,12 +35,15 @@ namespace TacViewDataLogger
     {
         struct ActorEntryValue
         {
+            private static int redCallsignIndex = 0;
+            private static int blueCallsignIndex = 0;
             public ActorEntryValue(String uniqueID)
             {
                 this.uniqueID = uniqueID;
                 recentlyAdded = true;
                 updated = true;
                 needsUpdating = true;
+                callsign = "";
             }
             public void Update()
             {
@@ -51,10 +54,22 @@ namespace TacViewDataLogger
                 recentlyAdded = false;
                 updated = false;
             }
+            public void GenerateCallsign(bool isRed)
+            {
+                if(isRed)
+                {
+                    callsign = "Tango " + redCallsignIndex++;
+                }
+                else
+                {
+                    callsign = "Alpha " + blueCallsignIndex++;
+                }
+            }
             public String uniqueID;
             public bool recentlyAdded;
             public bool updated;
             public bool needsUpdating;
+            public String callsign;
         }
         static Dictionary<object, ActorEntryValue> objectIDs = new Dictionary<object, ActorEntryValue>();
         static List<string> removedObjectIDs = new List<string>();
@@ -142,6 +157,17 @@ namespace TacViewDataLogger
             tmp.Update();
             tmp.needsUpdating = needsUpdating;
             objectIDs[obj] = tmp;
+        }
+        public static string GetObjectCallsign(object obj, bool isRed)
+        {
+            if(objectIDs[obj].callsign == "")
+            {
+                ActorEntryValue tmp;
+                objectIDs.TryGetValue(obj, out tmp);
+                tmp.GenerateCallsign(isRed);
+                objectIDs[obj] = tmp;
+            }
+            return objectIDs[obj].callsign;
         }
         public static IEnumerable<string> ClearAndGetOldObjectIds()
         {
