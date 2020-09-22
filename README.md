@@ -1,5 +1,17 @@
 # VTOL VR Tacview Data Logger Mod
 
+This is a fork from [nebriv's](https://github.com/nebriv) original VTOL VR Tacview Logger, [here](https://github.com/nebriv/VTOLVR-TacviewLogger).
+If you find the Tacview logger on the [mod page](https://vtolvr-mods.com/mod/ctvzwocs/), it is using nebriv's version.
+I've added various things that I thought were important, namely (at the time of this writing):
+ - Bullet looping is fixed
+ - Added rockets
+ - Added locked targets to all missile actors
+ - Added chaff
+ - Rehauled the ID system to provide unique IDs for any object
+
+I'm planning on working on this for a little bit, but I make no promises. Namely I'm focusing on performance improvements geared toward my machine. Do what you want with it.
+If you want to use this version, you'll have to go through the trouble of compiling it and copying the dll yourself. I don't plan on making a mod page for this, nor creating a release for this.
+
 ![header2](https://user-images.githubusercontent.com/1825214/85210315-da335c80-b30c-11ea-9200-7704414ddb69.png)
 
 Hello and welcome to the VTOL VR Tacview Data Logger mod! 
