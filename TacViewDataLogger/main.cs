@@ -108,6 +108,8 @@ namespace TacViewDataLogger
         private void Start()
         {
             HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             api = VTOLAPI.instance;
 
@@ -226,6 +228,7 @@ namespace TacViewDataLogger
                         try
                         {
                             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
                             TacViewDataLogACMI();
                         }
