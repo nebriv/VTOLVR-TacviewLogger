@@ -1,5 +1,4 @@
-﻿using Harmony;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using UnityEngine.Events;
 using System.Text;
+using Harmony;
 
 namespace TacViewDataLogger
 {
@@ -23,7 +23,7 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "Nebriv";
+        public static string projectAuthor = "Nebriv,TytanRock";
         public static string projectVersion = "v2.3";
 
     }
@@ -115,6 +115,7 @@ namespace TacViewDataLogger
             SceneManager.sceneLoaded += SceneLoaded;
             SceneReloaded += RestartScenarioDetected;
 
+
             support.WriteLog($"VR Device Refresh Rate: {UnityEngine.XR.XRDevice.refreshRate.ToString()}");
             support.WriteLog($"Target frame time: {(1 / UnityEngine.XR.XRDevice.refreshRate).ToString()}");
 
@@ -153,14 +154,10 @@ namespace TacViewDataLogger
             }
         }
 
-        [HarmonyPatch(typeof(VTMapManager), "RestartCurrentScenario")]
-        class Patch
+        void MissionReloaded()
         {
-            static void Postfix(VTMapManager __instance)
-            {
-                if (TacViewDataLogger.SceneReloaded != null)
-                    TacViewDataLogger.SceneReloaded.Invoke();
-            }
+            if (TacViewDataLogger.SceneReloaded != null)
+                TacViewDataLogger.SceneReloaded.Invoke();
         }
 
         void manageSamplingRate()
@@ -215,13 +212,13 @@ namespace TacViewDataLogger
 
                     elapsedSeconds += period;
                     dataLog.Append($"\n#{elapsedSeconds}");
-                    //GCLatencyMode oldMode = GCSettings.LatencyMode;
-                    //RuntimeHelpers.PrepareConstrainedRegions();
-                    //GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                    GCLatencyMode oldMode = GCSettings.LatencyMode;
+                    RuntimeHelpers.PrepareConstrainedRegions();
+                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
                     TacViewDataLogACMI();
-                    //GCSettings.LatencyMode = oldMode;
+                    GCSettings.LatencyMode = oldMode;
                     timer.Stop();
-                    Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
+                    //Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
                 }
             }
 
