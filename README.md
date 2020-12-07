@@ -1,17 +1,5 @@
 # VTOL VR Tacview Data Logger Mod
 
-This is a fork from [nebriv's](https://github.com/nebriv) original VTOL VR Tacview Logger, [here](https://github.com/nebriv/VTOLVR-TacviewLogger).
-If you find the Tacview logger on the [mod page](https://vtolvr-mods.com/mod/ctvzwocs/), it is using nebriv's version.
-I've added various things that I thought were important, namely (at the time of this writing):
- - Bullet looping is fixed
- - Added rockets
- - Added locked targets to all missile actors
- - Added chaff
- - Rehauled the ID system to provide unique IDs for any object
-
-I'm planning on working on this for a little bit, but I make no promises. Namely I'm focusing on performance improvements geared toward my machine. Do what you want with it.
-If you want to use this version, you'll have to go through the trouble of compiling it and copying the dll yourself. I don't plan on making a mod page for this, nor creating a release for this.
-
 ![header2](https://user-images.githubusercontent.com/1825214/85210315-da335c80-b30c-11ea-9200-7704414ddb69.png)
 
 Hello and welcome to the VTOL VR Tacview Data Logger mod! 
@@ -94,7 +82,7 @@ VTOL VR models can be added to Tacview via the following steps:
  1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
  2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
 
-All VTOL VR models are properly of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
+All VTOL VR models are property of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
 
 ### Height Maps/Terrain
 Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see customHeightMapXML.txt and heightmap_MAPNAME.data. To use this heightmap in Tacview follow the below steps.
@@ -132,4 +120,3 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
 	 - He provided guidance and a couple of custom plane models to use within Tacview.
  - TheFalcon
  	 - He graciously created the header image you see above! Check out his awesome work at https://twitter.com/RallyPointComic
-

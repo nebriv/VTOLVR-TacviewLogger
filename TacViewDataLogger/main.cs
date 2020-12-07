@@ -23,8 +23,8 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "Nebriv, TytanRock";
-        public static string projectVersion = "v3.0";
+        public static string projectAuthor = "Nebriv";
+        public static string projectVersion = "v2.3";
 
     }
 
@@ -73,7 +73,7 @@ namespace TacViewDataLogger
 
 
         private float nextActionTime = 0.0f;
-        public float period = 0.25f;
+        public float period = 0.5f;
 
         public int frameRateLogSize = 90;
 
