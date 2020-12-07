@@ -55,7 +55,7 @@ namespace TacViewDataLogger
                 AeroController aero = vehicle.GetComponentInChildren<AeroController>();
                 return aero.brake.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "Unavailable";
             }
@@ -75,7 +75,7 @@ namespace TacViewDataLogger
                     return "0";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "0";
             }
@@ -111,7 +111,7 @@ namespace TacViewDataLogger
                     return null;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 support.WriteLog("Got error while getting radar lock data");
                 return null;
@@ -143,7 +143,7 @@ namespace TacViewDataLogger
                     return "0";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "0";
             }
@@ -158,7 +158,7 @@ namespace TacViewDataLogger
                 EjectionSeat ejection = vehicle.GetComponentInChildren<EjectionSeat>();
                 ejectionState = ejection.ejected.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ejectionState = "Unavailable";
             }
@@ -189,7 +189,7 @@ namespace TacViewDataLogger
                 }
 
             }
-            catch (NullReferenceException ex)
+            catch (NullReferenceException)
             {
                 //I don't think this really matters here. It seems to work and I'm too lazy to debug it. 
                 //I think ModuleRWR only updates at a certain rate and does not exist otherwise.
@@ -209,7 +209,7 @@ namespace TacViewDataLogger
                 MissileDetector md = vehicle.GetComponentInChildren<MissileDetector>();
                 return md.missileDetected.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "Unavailable";
             }
@@ -307,7 +307,7 @@ namespace TacViewDataLogger
                 AeroController aero = vehicle.GetComponentInChildren<AeroController>();
                 return aero.flaps.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "Unavailable";
             }
@@ -380,7 +380,7 @@ namespace TacViewDataLogger
                 FuelTank tank = vehicle.GetComponentInChildren<FuelTank>();
                 return tank.totalFuel.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "False";
             }
@@ -393,7 +393,7 @@ namespace TacViewDataLogger
                 FuelTank tank = vehicle.GetComponentInChildren<FuelTank>();
                 return Math.Round(tank.GetMass(), 2).ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "False";
             }
@@ -407,7 +407,7 @@ namespace TacViewDataLogger
                 FuelTank tank = vehicle.GetComponentInChildren<FuelTank>();
                 return tank.fuelDrain.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "False";
             }
@@ -421,7 +421,7 @@ namespace TacViewDataLogger
                 FuelTank tank = vehicle.GetComponentInChildren<FuelTank>();
                 return tank.fuelDensity.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "False";
             }
@@ -508,7 +508,7 @@ namespace TacViewDataLogger
                 RadarCrossSection rcs = vehicle.GetComponentInChildren<RadarCrossSection>();
                 return rcs.GetAverageCrossSection().ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "False";
             }

@@ -120,4 +120,3 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
 	 - He provided guidance and a couple of custom plane models to use within Tacview.
  - TheFalcon
  	 - He graciously created the header image you see above! Check out his awesome work at https://twitter.com/RallyPointComic
-
