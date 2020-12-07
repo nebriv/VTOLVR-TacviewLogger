@@ -89,8 +89,8 @@
       <HintPath>F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.VRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\VTOL VR\VTOLVR_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>	      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_Data\Managed\UnityEngine.VRModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -106,7 +106,6 @@
     <Compile Include="dataGetters.cs" />
     <Compile Include="geoHelper.cs" />
     <Compile Include="heightmapGeneration.cs" />
-    <Compile Include="StreamingServer.cs" />
     <Compile Include="support.cs" />
     <Compile Include="extensions.cs" />
     <Compile Include="tacviewAcmi.cs" />
