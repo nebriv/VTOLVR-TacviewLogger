@@ -208,23 +208,31 @@ namespace TacViewDataLogger
 
             support.WriteLog($"Looking for Map ID {VTScenario.current.mapID}");
             map = VTResources.GetMap(VTScenario.current.mapID);
+            support.WriteLog("Done looking for map id");
             if (map == null)
             {
+                support.WriteLog("Getting custom map 1");
                 VTMapCustom custommap = VTResources.GetCustomMap(VTScenario.current.mapID);
                 return custommap;
             }
             if (map == null)
             {
+                support.WriteLog("Getting custom map 2");
                 VTMapCustom custommap = VTResources.GetSteamWorkshopMap(VTScenario.current.mapID);
                 return custommap;
             }
 
+            support.WriteLog("MM check");
             if (mm != null)
             {
+                support.WriteLog("MM exists, Map null check?");
                 if (map == null)
                 {
-                    support.WriteLog("Got map from map manager");
+                    support.WriteLog("Map not null. Get map from map manager");
                     return VTMapManager.fetch.map;
+                } else
+                {
+                    support.WriteLog("Map is null");
                 }
             }
             else
@@ -233,10 +241,9 @@ namespace TacViewDataLogger
             }
 
 
-
-
             if (map != null)
             {
+                support.WriteLog("Returning map.");
                 return map;
             }
             else

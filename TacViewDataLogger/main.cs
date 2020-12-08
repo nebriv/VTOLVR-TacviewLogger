@@ -424,8 +424,9 @@ namespace TacViewDataLogger
             {
                 support.WriteLog("Getting custom map");
                 VTMap map = support.getMap();
+                support.WriteLog("Done getting map");
                 string title = "";
-
+                
                 if (map == null)
                 {
                     support.WriteErrorLog("Unable to get custom map!");
@@ -433,10 +434,19 @@ namespace TacViewDataLogger
                 }
                 else
                 {
-                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                    support.WriteLog("Map is not null!");
+                    if (map.mapName != null)
+                    {
+                        title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                    }
+                    else
+                    {
+                        support.WriteErrorLog("Map does not have a name.");
+                        title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map Name";
+                    }
                     
                 }
-
+                support.WriteLog("Done writing title");
                 string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
                 string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
                 using (StreamWriter sw = File.AppendText(path))
@@ -448,8 +458,21 @@ namespace TacViewDataLogger
             }
             else
             {
+                support.WriteLog("Getting not custom map");
                 VTMap map = support.getMap();
-                string title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                string title = "";
+
+                if (map == null)
+                {
+                    support.WriteErrorLog("Unable to get custom map!");
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map";
+                }
+                else
+                {
+                    support.WriteErrorLog("Map is null!2");
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+
+                }
                 string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
                 string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
                 using (StreamWriter sw = File.AppendText(path))
