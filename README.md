@@ -82,7 +82,7 @@ VTOL VR models can be added to Tacview via the following steps:
  1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
  2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
 
-All VTOL VR models are properly of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
+All VTOL VR models are property of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
 
 ### Height Maps/Terrain
 Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see customHeightMapXML.txt and heightmap_MAPNAME.data. To use this heightmap in Tacview follow the below steps.
@@ -120,4 +120,3 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
 	 - He provided guidance and a couple of custom plane models to use within Tacview.
  - TheFalcon
  	 - He graciously created the header image you see above! Check out his awesome work at https://twitter.com/RallyPointComic
-

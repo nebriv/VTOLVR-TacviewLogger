@@ -160,8 +160,11 @@ namespace TacViewDataLogger
         private string genMapNameFile(VTMap map)
         {
             string name;
-            support.WriteLog(map.mapName);
-            if (map.mapName == "")
+            if (map.mapName == null)
+            {
+                name = "emptymapname";
+            }
+            else if (map.mapName == "")
             {
                 name = "unknownmapname";
             }
@@ -299,9 +302,7 @@ namespace TacViewDataLogger
                 saveHeightMap(myTexture2D, map, TacViewFolder);
                 generateMapXML(myTexture2D, map, customScene, TacViewFolder);
 
-
             }
-
 
         }
     }
