@@ -104,6 +104,8 @@ namespace TacViewDataLogger
         private void Start()
         {
             HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             api = VTOLAPI.instance;
 
@@ -211,6 +213,7 @@ namespace TacViewDataLogger
                     nextActionTime += period;
 
                     elapsedSeconds += period;
+                    Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
                     dataLog.Append($"\n#{elapsedSeconds}");
                     GCLatencyMode oldMode = GCSettings.LatencyMode;
                     RuntimeHelpers.PrepareConstrainedRegions();
@@ -219,6 +222,7 @@ namespace TacViewDataLogger
                     GCSettings.LatencyMode = oldMode;
                     timer.Stop();
                     //Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
+
                 }
             }
 
