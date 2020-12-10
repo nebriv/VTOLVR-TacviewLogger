@@ -26,7 +26,7 @@ namespace TacViewDataLogger
             entry.ias = AerodynamicsController.fetch.IndicatedAirspeed(actor.flightInfo.airspeed, actor.flightInfo.rb.position).ToString();
             entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
             entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
-            
+
             //entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
             //entry.radarMode = DataGetters.getRadarState(actor.gameObject);
             //entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
@@ -39,7 +39,7 @@ namespace TacViewDataLogger
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
 
-            
+
 
             Actor targettedActor = DataGetters.getRadarLockTarget(actor.gameObject, actor);
 
@@ -194,13 +194,13 @@ namespace TacViewDataLogger
             Vector3 toDirection = Vector3.ProjectOnPlane(actor.transform.up, forward);
             float roll = VectorUtils.SignedAngle(Vector3.up, toDirection, Vector3.Cross(Vector3.up, forward));
 
-            entry.locData = $"{Math.Round(coords.y,7)} | {Math.Round(coords.x,7)} | {Math.Round(coords.z,7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
+            entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
 
             Missile missile = Traverse.Create(actor).Field("missile").GetValue() as Missile;
 
             if (missile != null)
             {
-                switch(missile.guidanceMode)
+                switch (missile.guidanceMode)
                 {
                     case Missile.GuidanceModes.Radar:
                         entry._basicTypes = "Missile";
@@ -257,7 +257,7 @@ namespace TacViewDataLogger
                 }
             }
 
-            
+
             entry.name = actor.actorName;
             entry.callSign = actor.actorName;
             return entry;

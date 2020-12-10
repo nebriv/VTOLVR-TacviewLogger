@@ -78,6 +78,9 @@
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>..\Dependencies\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ProfilerModule">
+      <HintPath>..\Dependencies\UnityEngine.ProfilerModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.VRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\UnityEngine.VRModule.dll</HintPath>
@@ -89,6 +92,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "E:\Documents\Projects\VTOLVR-TacViewLogger\TacViewDataLogger\bin\Builds\TacViewDataLogger.dll" "F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_ModLoader\mods\" /Y</PostBuildEvent>
+    <PostBuildEvent>
+"C:\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+xcopy /Y "$(TargetPath)" "F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_ModLoader\mods\"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_ModLoader\mods\"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_ModLoader\mods\"
+
+xcopy "E:\Documents\Projects\VTOLVR-TacViewLogger\TacViewDataLogger\bin\Builds\TacViewDataLogger.dll" "F:\SteamLibrary\steamapps\common\VTOL VR\VTOLVR_ModLoader\mods\" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

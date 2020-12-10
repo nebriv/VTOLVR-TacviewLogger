@@ -56,7 +56,7 @@ namespace TacViewDataLogger
             }
             public void GenerateCallsign(bool isRed)
             {
-                if(isRed)
+                if (isRed)
                 {
                     callsign = "Tango " + redCallsignIndex++;
                 }
@@ -121,7 +121,7 @@ namespace TacViewDataLogger
 
         public static List<Actor> getActorsByRoll(Actor.Roles role)
         {
-            
+
             List<Actor> actors = TargetManager.instance.allActors;
             List<Actor> filtered = new List<Actor>();
 
@@ -160,7 +160,7 @@ namespace TacViewDataLogger
         }
         public static string GetObjectCallsign(object obj, bool isRed)
         {
-            if(objectIDs[obj].callsign == "")
+            if (objectIDs[obj].callsign == "")
             {
                 ActorEntryValue tmp;
                 objectIDs.TryGetValue(obj, out tmp);
@@ -175,9 +175,9 @@ namespace TacViewDataLogger
 
             var newDictionary = new Dictionary<object, ActorEntryValue>();
 
-            foreach(var obj in objectIDs)
+            foreach (var obj in objectIDs)
             {
-                if(!obj.Value.updated && obj.Value.needsUpdating)
+                if (!obj.Value.updated && obj.Value.needsUpdating)
                 {
                     notUpdated.Add(obj.Value.uniqueID);
                 }
@@ -199,7 +199,7 @@ namespace TacViewDataLogger
 
         public static string cleanString(string input)
         {
-            string clean = input.Replace("\\", "").Replace("/", "").Replace("<", "").Replace(">", "").Replace("*", "").Replace("\"", "").Replace("?", "").Replace(":", "").Replace("|", "").Replace(" ","");
+            string clean = input.Replace("\\", "").Replace("/", "").Replace("<", "").Replace(">", "").Replace("*", "").Replace("\"", "").Replace("?", "").Replace(":", "").Replace("|", "").Replace(" ", "");
             return clean;
         }
         public VTMap getMap()
@@ -230,7 +230,8 @@ namespace TacViewDataLogger
                 {
                     support.WriteLog("Map not null. Get map from map manager");
                     return VTMapManager.fetch.map;
-                } else
+                }
+                else
                 {
                     support.WriteLog("Map is null");
                 }

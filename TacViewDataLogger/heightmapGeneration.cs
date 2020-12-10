@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using UnityEngine;
 using System.Xml.Linq;
+using UnityEngine;
 
 namespace TacViewDataLogger
 {
@@ -114,7 +114,7 @@ namespace TacViewDataLogger
         }
 
 
-        private geoHelper.GeoLocation[] generateCoords(VTMap map, int mapSize, bool startBottomLeft, float latOffset=0, float lonOffset=0)
+        private geoHelper.GeoLocation[] generateCoords(VTMap map, int mapSize, bool startBottomLeft, float latOffset = 0, float lonOffset = 0)
         {
             support.WriteLog("Generating Coordinates from bottom corner");
             geoHelper.GeoLocation[] geoLocations = new geoHelper.GeoLocation[4];

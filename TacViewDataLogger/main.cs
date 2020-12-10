@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Harmony;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,15 +8,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
-using UnityEngine.Events;
-using System.Text;
-using Harmony;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace TacViewDataLogger
 {
@@ -103,6 +100,7 @@ namespace TacViewDataLogger
 
         private void Start()
         {
+            Profiler.BeginSample("vesselState");
             HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
@@ -311,7 +309,8 @@ namespace TacViewDataLogger
                         timestamp += $"T13:{minsec}Z";
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
-                } else if (VTScenario.current.envName == "morning")
+                }
+                else if (VTScenario.current.envName == "morning")
                 {
                     using (StreamWriter sw = File.AppendText(path))
                     {
@@ -321,7 +320,8 @@ namespace TacViewDataLogger
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
 
-                } else if (VTScenario.current.envName == "night")
+                }
+                else if (VTScenario.current.envName == "night")
                 {
                     using (StreamWriter sw = File.AppendText(path))
                     {
@@ -338,7 +338,7 @@ namespace TacViewDataLogger
                     {
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
-                    
+
                 }
 
                 // Custom Scene is set for anything not on the Akutan map
@@ -398,16 +398,16 @@ namespace TacViewDataLogger
 
         public void objectiveBegin(MissionObjective obj)
         {
-            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
         }
 
         public void objectiveComplete(MissionObjective obj)
         {
-            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
         }
         public void objectiveFail(MissionObjective obj)
         {
-            dataLog.Append("\n" +$"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
         }
 
         private void getObjectives()
@@ -431,7 +431,7 @@ namespace TacViewDataLogger
                 VTMap map = support.getMap();
                 support.WriteLog("Done getting map");
                 string title = "";
-                
+
                 if (map == null)
                 {
                     support.WriteErrorLog("Unable to get custom map!");
@@ -449,7 +449,7 @@ namespace TacViewDataLogger
                         support.WriteErrorLog("Map does not have a name.");
                         title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map Name";
                     }
-                    
+
                 }
                 support.WriteLog("Done writing title");
                 string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
@@ -499,7 +499,7 @@ namespace TacViewDataLogger
             {
                 newEntry = actorProcessor.airportEntry(manager);
 
-                dataLog.Append("\n" +newEntry.ACMIString());
+                dataLog.Append("\n" + newEntry.ACMIString());
 
             }
         }
@@ -513,12 +513,12 @@ namespace TacViewDataLogger
             var allChaff = new List<ChaffCountermeasure.Chaff>();
             foreach (var chaffCM in FindObjectsOfType<ChaffCountermeasure>())
             {
-                foreach(ChaffCountermeasure.Chaff ch in Traverse.Create(chaffCM).Field("chaffs").GetValue() as ChaffCountermeasure.Chaff[])
+                foreach (ChaffCountermeasure.Chaff ch in Traverse.Create(chaffCM).Field("chaffs").GetValue() as ChaffCountermeasure.Chaff[])
                 {
-                    if(ch.decayed)
+                    if (ch.decayed)
                     {
                         /* Do nothing */
-                    } 
+                    }
                     else
                     {
                         allChaff.Add(ch);
@@ -575,7 +575,7 @@ namespace TacViewDataLogger
 
             foreach (var actor in actors)
             {
-                    
+
                 acmiString = "";
                 support.UpdateID(actor);
 
@@ -598,7 +598,7 @@ namespace TacViewDataLogger
                 }
                 if ((acmiString != "") && (acmiString.Contains(",")))
                 {
-                    dataLog.Append("\n" +acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
@@ -610,7 +610,7 @@ namespace TacViewDataLogger
                 support.UpdateID(flare);
 
                 newEntry = buildFlareEntry(flare);
-                
+
                 if (knownActors.ContainsKey(support.GetObjectID(flare)))
                 {
                     oldEntry = knownActors[support.GetObjectID(flare)];
@@ -624,7 +624,7 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Append("\n" +acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
             // Getting Chaff and processing them
@@ -649,7 +649,7 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Append("\n" +acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
@@ -676,11 +676,11 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Append("\n" +acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
-            foreach(var rocket in getRockets())
+            foreach (var rocket in getRockets())
             {
                 /* If this isn't active, don't update it or use it */
                 if (!rocket.isActiveAndEnabled) continue;
@@ -702,7 +702,7 @@ namespace TacViewDataLogger
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Append("\n" +acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
@@ -719,7 +719,7 @@ namespace TacViewDataLogger
                 //    dataLog.Append("\n" +acmi.ACMIEvent("Destroyed", null, actor));
                 //}
 
-                dataLog.Append("\n" +$"-{actor}");
+                dataLog.Append("\n" + $"-{actor}");
                 knownActors.Remove(actor);
             }
         }
@@ -764,7 +764,7 @@ namespace TacViewDataLogger
 
             return entry;
         }
-        
+
         public ACMIDataEntry buildRocketEntry(Rocket rocket, float customOffset = 0f)
         {
             entry = new ACMIDataEntry();
