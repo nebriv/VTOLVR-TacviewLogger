@@ -213,7 +213,6 @@ namespace TacViewDataLogger
                     nextActionTime += period;
 
                     elapsedSeconds += period;
-                    Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
                     dataLog.Append($"\n#{elapsedSeconds}");
                     GCLatencyMode oldMode = GCSettings.LatencyMode;
                     RuntimeHelpers.PrepareConstrainedRegions();
@@ -556,6 +555,7 @@ namespace TacViewDataLogger
 
         public void writeStringTask()
         {
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             using (var writer = new StreamWriter(path, append: true))
             {
                 /* Maybe this will be faster than using a queue? */
