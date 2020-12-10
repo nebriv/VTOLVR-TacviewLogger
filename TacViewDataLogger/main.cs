@@ -769,7 +769,7 @@ namespace TacViewDataLogger
         {
             entry = new ACMIDataEntry();
 
-            entry.name = rocket.name;
+            entry.name = rocket.name.Replace("(Clone)", "");
 
             Vector3D coords = support.convertPositionToLatLong_raw(rocket.transform.position);
 
