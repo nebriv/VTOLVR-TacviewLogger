@@ -22,10 +22,11 @@ namespace TacViewDataLogger
             }
 
             entry.aoa = Math.Round(actor.flightInfo.aoa, 2).ToString();
-            entry.ias = Math.Round(actor.flightInfo.airspeed, 2).ToString();
+            entry.tas = Math.Round(actor.flightInfo.airspeed, 2).ToString();
+            entry.ias = AerodynamicsController.fetch.IndicatedAirspeed(actor.flightInfo.airspeed, actor.flightInfo.rb.position).ToString();
             entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
             entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
-
+            
             //entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
             //entry.radarMode = DataGetters.getRadarState(actor.gameObject);
             //entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
