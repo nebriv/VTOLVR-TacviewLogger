@@ -238,6 +238,8 @@ namespace TacViewDataLogger
                     yield return null;
                 }
 
+                // Delaying start of capture process for two seconds to let the game catch up.
+                yield return new WaitForSeconds(2);
                 mapManager = VTMapManager.fetch;
                 actorProcessor.support = support;
                 heightmapGeneration.support = support;
