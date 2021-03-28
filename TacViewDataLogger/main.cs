@@ -21,7 +21,7 @@ namespace TacViewDataLogger
 
         public static string projectName = "VTOL VR Tacview Data Logger";
         public static string projectAuthor = "Nebriv,TytanRock";
-        public static string projectVersion = "v2.4";
+        public static string projectVersion = "v2.5";
 
     }
 
@@ -100,7 +100,6 @@ namespace TacViewDataLogger
 
         private void Start()
         {
-            Profiler.BeginSample("vesselState");
             HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
