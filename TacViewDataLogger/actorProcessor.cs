@@ -9,20 +9,21 @@ namespace TacViewDataLogger
 
         public support support = new support();
 
-        public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
             entry._basicTypes = "FixedWing";
-            entry.callSign = actor.designation.ToString();
+            entry.callSign = support.GetObjectCallsign(actor, isRed);
             entry.name = actor.actorName;
             if (actor.currentlyTargetingActor != null)
             {
-                entry.lockedTarget = support.getActorID(actor.currentlyTargetingActor);
+                entry.lockedTarget = support.GetObjectID(actor.currentlyTargetingActor);
             }
 
             entry.aoa = Math.Round(actor.flightInfo.aoa, 2).ToString();
-            entry.ias = Math.Round(actor.flightInfo.airspeed, 2).ToString();
+            entry.tas = Math.Round(actor.flightInfo.airspeed, 2).ToString();
+            entry.ias = AerodynamicsController.fetch.IndicatedAirspeed(actor.flightInfo.airspeed, actor.flightInfo.rb.position).ToString();
             entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
             entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
 
@@ -33,22 +34,22 @@ namespace TacViewDataLogger
             return entry;
         }
 
-        public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
+        public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
             entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
 
-            
+
 
             Actor targettedActor = DataGetters.getRadarLockTarget(actor.gameObject, actor);
 
             if (targettedActor != null)
             {
-                entry.lockedTarget = support.getActorID(targettedActor);
+                entry.lockedTarget = support.GetObjectID(targettedActor);
             }
 
             entry.pilot = actor.actorName;
-            entry.callSign = actor.actorName;
+            entry.callSign = support.GetObjectCallsign(actor, isRed);
             entry.name = actor.name.Replace("(Clone)", "");
 
             return entry;
@@ -80,7 +81,7 @@ namespace TacViewDataLogger
 
             if (actor.currentlyTargetingActor != null)
             {
-                entry.lockedTarget = support.getActorID(actor.currentlyTargetingActor);
+                entry.lockedTarget = support.GetObjectID(actor.currentlyTargetingActor);
             }
 
 
@@ -131,7 +132,7 @@ namespace TacViewDataLogger
             //    entry._objectClass = "Ground";
             //}
 
-            
+
 
             return entry;
         }
@@ -176,9 +177,6 @@ namespace TacViewDataLogger
         public ACMIDataEntry missileDataEntry(Actor actor, ACMIDataEntry entry, float customOffset = 0f)
         {
             Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
-            //entry.parent = actor.parentActor.gameObject.GetInstanceID().ToString("X").ToLower();
-
-            entry.name = actor.name;
 
             double headingNum = Math.Atan2(actor.transform.forward.x, actor.transform.forward.z) * Mathf.Rad2Deg;
 
@@ -196,43 +194,70 @@ namespace TacViewDataLogger
             Vector3 toDirection = Vector3.ProjectOnPlane(actor.transform.up, forward);
             float roll = VectorUtils.SignedAngle(Vector3.up, toDirection, Vector3.Cross(Vector3.up, forward));
 
-            entry.locData = $"{Math.Round(coords.y,7)} | {Math.Round(coords.x,7)} | {Math.Round(coords.z,7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
+            entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
 
             Missile missile = Traverse.Create(actor).Field("missile").GetValue() as Missile;
 
             if (missile != null)
             {
-                if (missile.guidanceMode == Missile.GuidanceModes.AntiRad)
+                switch (missile.guidanceMode)
                 {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Bomb)
-                {
-                    entry._basicTypes = "Bomb";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.GPS)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Heat)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Optical)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else if (missile.guidanceMode == Missile.GuidanceModes.Radar)
-                {
-                    entry._basicTypes = "Missile";
-                }
-                else
-                {
-                    entry._basicTypes = "Missile";
+                    case Missile.GuidanceModes.Radar:
+                        entry._basicTypes = "Missile";
+                        if (missile.lockingRadar != null && missile.lockingRadar.IsLocked())
+                        {
+                            entry.lockedTargetMode = "1";
+                            entry.lockedTarget = support.GetObjectID(missile.lockingRadar.currentLock.actor);
+                        }
+                        else
+                        {
+                            entry.lockedTargetMode = "0";
+                        }
+                        break;
+                    case Missile.GuidanceModes.Optical:
+                        entry._basicTypes = "Missile";
+                        if (missile.opticalTargetActor != null)
+                        {
+                            entry.lockedTargetMode = "1";
+                            entry.lockedTarget = support.GetObjectID(missile.opticalTargetActor);
+                        }
+                        else
+                        {
+                            entry.lockedTargetMode = "0";
+                        }
+                        break;
+                    case Missile.GuidanceModes.AntiRad:
+                        entry._basicTypes = "Missile";
+                        if (missile.antiRadTargetActor != null)
+                        {
+                            entry.lockedTargetMode = "1";
+                            entry.lockedTarget = support.GetObjectID(missile.antiRadTargetActor);
+                        }
+                        else
+                        {
+                            entry.lockedTargetMode = "0";
+                        }
+                        break;
+                    case Missile.GuidanceModes.Heat:
+                        entry._basicTypes = "Missile";
+                        if (missile.heatSeeker.likelyTargetActor != null)
+                        {
+                            entry.lockedTargetMode = "1";
+                            entry.lockedTarget = support.GetObjectID(missile.heatSeeker.likelyTargetActor);
+                        }
+                        else
+                        {
+                            entry.lockedTargetMode = "0";
+                        }
+                        break;
+                    case Missile.GuidanceModes.GPS:
+                    case Missile.GuidanceModes.Bomb:
+                        entry._basicTypes = "Bomb";
+                        break;
                 }
             }
 
-            
+
             entry.name = actor.actorName;
             entry.callSign = actor.actorName;
             return entry;
@@ -243,7 +268,9 @@ namespace TacViewDataLogger
         {
             ACMIDataEntry entry = new ACMIDataEntry();
             support.WriteLog($"Processing Airport {airport.airportName}");
-            entry.objectId = support.getAirportID(airport);
+            support.UpdateID(airport, false);
+
+            entry.objectId = support.GetObjectID(airport);
 
             if (airport.team == Teams.Allied)
             {

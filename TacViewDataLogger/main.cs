@@ -8,13 +8,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
-using UnityEngine.Events;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace TacViewDataLogger
 {
@@ -22,8 +20,8 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "Nebriv";
-        public static string projectVersion = "v2.3";
+        public static string projectAuthor = "Nebriv,TytanRock";
+        public static string projectVersion = "v2.5";
 
     }
 
@@ -49,22 +47,17 @@ namespace TacViewDataLogger
 
         public ACMI acmi;
 
-        public Queue<string> dataLog = new Queue<string>();
+        public StringBuilder dataLog = new StringBuilder();
 
         public Dictionary<String, ACMIDataEntry> knownActors = new Dictionary<String, ACMIDataEntry>();
 
 
         public string acmiString;
-        List<String> actorIDList;
         List<Actor> actors;
-        List<String> removedActors;
 
         public ACMIDataEntry newEntry;
         public ACMIDataEntry oldEntry;
         public ACMIDataEntry entry;
-
-        public List<CMFlare> flares;
-        public List<Bullet> bullets;
 
 
         public double saveTime;
@@ -108,6 +101,8 @@ namespace TacViewDataLogger
         private void Start()
         {
             HarmonyInstance harmony = HarmonyInstance.Create("tacview.harmony");
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             api = VTOLAPI.instance;
 
@@ -118,6 +113,7 @@ namespace TacViewDataLogger
 
             SceneManager.sceneLoaded += SceneLoaded;
             SceneReloaded += RestartScenarioDetected;
+
 
             support.WriteLog($"VR Device Refresh Rate: {UnityEngine.XR.XRDevice.refreshRate.ToString()}");
             support.WriteLog($"Target frame time: {(1 / UnityEngine.XR.XRDevice.refreshRate).ToString()}");
@@ -157,14 +153,10 @@ namespace TacViewDataLogger
             }
         }
 
-        [HarmonyPatch(typeof(VTMapManager), "RestartCurrentScenario")]
-        class Patch
+        void MissionReloaded()
         {
-            static void Postfix(VTMapManager __instance)
-            {
-                if (TacViewDataLogger.SceneReloaded != null)
-                    TacViewDataLogger.SceneReloaded.Invoke();
-            }
+            if (TacViewDataLogger.SceneReloaded != null)
+                TacViewDataLogger.SceneReloaded.Invoke();
         }
 
         void manageSamplingRate()
@@ -207,6 +199,8 @@ namespace TacViewDataLogger
 
                 if ((Time.time > nextActionTime) || (nextActionTime == 0.0f))
                 {
+                    Stopwatch timer = new Stopwatch();
+                    timer.Start();
 
                     if (frameRateLog.Count == frameRateLogSize)
                     {
@@ -216,29 +210,15 @@ namespace TacViewDataLogger
                     nextActionTime += period;
 
                     elapsedSeconds += period;
-                    dataLog.Enqueue($"#{elapsedSeconds}");
-                    try
-                    {
+                    dataLog.Append($"\n#{elapsedSeconds}");
+                    GCLatencyMode oldMode = GCSettings.LatencyMode;
+                    RuntimeHelpers.PrepareConstrainedRegions();
+                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                    TacViewDataLogACMI();
+                    GCSettings.LatencyMode = oldMode;
+                    timer.Stop();
+                    //Log("Time taken to get ACMI data: " + timer.ElapsedMilliseconds + "ms");
 
-                        GCLatencyMode oldMode = GCSettings.LatencyMode;
-                        RuntimeHelpers.PrepareConstrainedRegions();
-
-                        try
-                        {
-                            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-
-                            TacViewDataLogACMI();
-                        }
-                        finally
-                        {
-                            GCSettings.LatencyMode = oldMode;
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        support.WriteErrorLog("Error getting data." + ex.ToString());
-                    }
                 }
             }
 
@@ -254,6 +234,8 @@ namespace TacViewDataLogger
                     yield return null;
                 }
 
+                // Delaying start of capture process for two seconds to let the game catch up.
+                yield return new WaitForSeconds(2);
                 mapManager = VTMapManager.fetch;
                 actorProcessor.support = support;
                 heightmapGeneration.support = support;
@@ -326,7 +308,8 @@ namespace TacViewDataLogger
                         timestamp += $"T13:{minsec}Z";
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
-                } else if (VTScenario.current.envName == "morning")
+                }
+                else if (VTScenario.current.envName == "morning")
                 {
                     using (StreamWriter sw = File.AppendText(path))
                     {
@@ -336,7 +319,8 @@ namespace TacViewDataLogger
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
 
-                } else if (VTScenario.current.envName == "night")
+                }
+                else if (VTScenario.current.envName == "night")
                 {
                     using (StreamWriter sw = File.AppendText(path))
                     {
@@ -353,7 +337,7 @@ namespace TacViewDataLogger
                     {
                         sw.WriteLine("0,ReferenceTime=" + timestamp);
                     }
-                    
+
                 }
 
                 // Custom Scene is set for anything not on the Akutan map
@@ -413,16 +397,16 @@ namespace TacViewDataLogger
 
         public void objectiveBegin(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Started");
         }
 
         public void objectiveComplete(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Completed");
         }
         public void objectiveFail(MissionObjective obj)
         {
-            dataLog.Enqueue($"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
+            dataLog.Append("\n" + $"0,Event=Bookmark|Objective '{obj.objectiveName}' Failed");
         }
 
         private void getObjectives()
@@ -444,6 +428,7 @@ namespace TacViewDataLogger
             {
                 support.WriteLog("Getting custom map");
                 VTMap map = support.getMap();
+                support.WriteLog("Done getting map");
                 string title = "";
 
                 if (map == null)
@@ -453,10 +438,19 @@ namespace TacViewDataLogger
                 }
                 else
                 {
-                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
-                    
-                }
+                    support.WriteLog("Map is not null!");
+                    if (map.mapName != null)
+                    {
+                        title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                    }
+                    else
+                    {
+                        support.WriteErrorLog("Map does not have a name.");
+                        title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map Name";
+                    }
 
+                }
+                support.WriteLog("Done writing title");
                 string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
                 string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
                 using (StreamWriter sw = File.AppendText(path))
@@ -468,8 +462,21 @@ namespace TacViewDataLogger
             }
             else
             {
+                support.WriteLog("Getting not custom map");
                 VTMap map = support.getMap();
-                string title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+                string title = "";
+
+                if (map == null)
+                {
+                    support.WriteErrorLog("Unable to get custom map!");
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on Unknown Map";
+                }
+                else
+                {
+                    support.WriteErrorLog("Map is null!2");
+                    title = $"0,Title={VTScenario.current.scenarioName.Replace(",", "\\,")} on {map.mapName.Replace(",", "\\,")}";
+
+                }
                 string briefing = $"0,Briefing={VTScenario.current.scenarioDescription.Replace(",", "\\,")}";
                 string author = $"0,Author={PilotSaveManager.current.pilotName.Replace(",", "\\,")}";
                 using (StreamWriter sw = File.AppendText(path))
@@ -491,24 +498,41 @@ namespace TacViewDataLogger
             {
                 newEntry = actorProcessor.airportEntry(manager);
 
-                dataLog.Enqueue(newEntry.ACMIString());
+                dataLog.Append("\n" + newEntry.ACMIString());
 
             }
         }
 
-        public List<CMFlare> getFlares()
+        public IEnumerable<CMFlare> getFlares()
         {
-            flares = new List<CMFlare>(FindObjectsOfType<CMFlare>());
-
-            return flares;
+            return FindObjectsOfType<CMFlare>();
         }
-
-
-        public List<Bullet> getBullets()
+        public IEnumerable<ChaffCountermeasure.Chaff> getChaff()
         {
-            bullets = new List<Bullet>(FindObjectsOfType<Bullet>());
-
-            return bullets;
+            var allChaff = new List<ChaffCountermeasure.Chaff>();
+            foreach (var chaffCM in FindObjectsOfType<ChaffCountermeasure>())
+            {
+                foreach (ChaffCountermeasure.Chaff ch in Traverse.Create(chaffCM).Field("chaffs").GetValue() as ChaffCountermeasure.Chaff[])
+                {
+                    if (ch.decayed)
+                    {
+                        /* Do nothing */
+                    }
+                    else
+                    {
+                        allChaff.Add(ch);
+                    }
+                }
+            }
+            return allChaff;
+        }
+        public IEnumerable<Bullet> getBullets()
+        {
+            return FindObjectsOfType<Bullet>();
+        }
+        public IEnumerable<Rocket> getRockets()
+        {
+            return Rocket.allFiredRockets;
         }
 
         public IEnumerator writeString()
@@ -516,7 +540,7 @@ namespace TacViewDataLogger
             while (runlogger)
             {
 
-                if (dataLog.Count > 0)
+                if (dataLog.Length > 0)
                 {
                     //File.AppendAllLines(path, dataLog);
                     //dataLog.Clear();
@@ -530,7 +554,12 @@ namespace TacViewDataLogger
 
         public void writeStringTask()
         {
-            File.AppendAllLines(path, dataLog);
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            using (var writer = new StreamWriter(path, append: true))
+            {
+                /* Maybe this will be faster than using a queue? */
+                writer.Write(dataLog.ToString());
+            }
             dataLog.Clear();
         }
 
@@ -539,125 +568,166 @@ namespace TacViewDataLogger
         {
             actors = TargetManager.instance.allActors;
 
-            actorIDList = new List<String>();
             acmiString = "";
 
             // Processing game actors
 
-            for (int i = 0; i < actors.Count; i++)
+            foreach (var actor in actors)
             {
-                    
-                acmiString = "";
-                newEntry = buildDataEntry(actors[i]);
 
-                actorIDList.Add(support.getActorID(actors[i]));
+                acmiString = "";
+                support.UpdateID(actor);
+
+                newEntry = buildDataEntry(actor);
 
                 // If this is already a tracked actor
-                if (knownActors.ContainsKey(support.getActorID(actors[i])))
+                if (knownActors.ContainsKey(support.GetObjectID(actor)))
                 {
-                    oldEntry = knownActors[support.getActorID(actors[i])];
+                    oldEntry = knownActors[support.GetObjectID(actor)];
 
                     // Diff the old entry and the new entry. Update the old entry with the new entry.
                     //acmiString = newEntry.ACMIString();
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getActorID(actors[i])] = newEntry;
+                    knownActors[support.GetObjectID(actor)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getActorID(actors[i]), newEntry);
+                    knownActors.Add(support.GetObjectID(actor), newEntry);
                 }
                 if ((acmiString != "") && (acmiString.Contains(",")))
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
             // Getting flares and processing them
-            flares = getFlares();
             acmiString = "";
-            for (int i = 0; i < flares.Count; i++)
+            foreach (var flare in getFlares())
             {
                 acmiString = "";
-                actorIDList.Add(support.getFlareID(flares[i]));
+                support.UpdateID(flare);
 
-                newEntry = buildFlareEntry(flares[i]);
-                
-                if (knownActors.ContainsKey(support.getFlareID(flares[i])))
+                newEntry = buildFlareEntry(flare);
+
+                if (knownActors.ContainsKey(support.GetObjectID(flare)))
                 {
-                    oldEntry = knownActors[support.getFlareID(flares[i])];
+                    oldEntry = knownActors[support.GetObjectID(flare)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getFlareID(flares[i])] = newEntry;
+                    knownActors[support.GetObjectID(flare)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getFlareID(flares[i]), newEntry);
+                    knownActors.Add(support.GetObjectID(flare), newEntry);
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" + acmiString);
+                }
+            }
+            // Getting Chaff and processing them
+            acmiString = "";
+            foreach (var chaff in getChaff())
+            {
+                acmiString = "";
+                support.UpdateID(chaff);
+
+                newEntry = buildChaffEntry(chaff);
+
+                if (knownActors.ContainsKey(support.GetObjectID(chaff)))
+                {
+                    oldEntry = knownActors[support.GetObjectID(chaff)];
+                    acmiString = newEntry.ACMIString(oldEntry);
+                    knownActors[support.GetObjectID(chaff)] = newEntry;
+                }
+                else
+                {
+                    acmiString = newEntry.ACMIString();
+                    knownActors.Add(support.GetObjectID(chaff), newEntry);
+                }
+                if (acmiString != "")
+                {
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
             // Getting bullets and processing them
-            bullets = getBullets();
-            for (int i = 0; i < bullets.Count; i++)
+            foreach (var bullet in getBullets())
             {
+                /* If this isn't active, don't update it or use it */
+                if (!bullet.isActiveAndEnabled) continue;
 
-                actorIDList.Add(support.getBulletID(bullets[i]));
+                support.UpdateID(bullet);
 
-                newEntry = buildBulletEntry(bullets[i]);
+                newEntry = buildBulletEntry(bullet);
                 acmiString = "";
-                if (knownActors.ContainsKey(support.getBulletID(bullets[i])))
+                if (knownActors.ContainsKey(support.GetObjectID(bullet)))
                 {
-                    oldEntry = knownActors[support.getBulletID(bullets[i])];
+                    oldEntry = knownActors[support.GetObjectID(bullet)];
                     acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.getBulletID(bullets[i])] = newEntry;
+                    knownActors[support.GetObjectID(bullet)] = newEntry;
                 }
                 else
                 {
                     acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.getBulletID(bullets[i]), newEntry);
+                    knownActors.Add(support.GetObjectID(bullet), newEntry);
                 }
                 if (acmiString != "")
                 {
-                    dataLog.Enqueue(acmiString);
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
-
-            removedActors = new List<String>();
-
-            foreach (String actor in knownActors.Keys)
+            foreach (var rocket in getRockets())
             {
-                if (!actorIDList.Contains(actor))
+                /* If this isn't active, don't update it or use it */
+                if (!rocket.isActiveAndEnabled) continue;
+
+                support.UpdateID(rocket);
+
+                newEntry = buildRocketEntry(rocket);
+                acmiString = "";
+                if (knownActors.ContainsKey(support.GetObjectID(rocket)))
                 {
-                    removedActors.Add(actor);
-
-                    
-                    // Need to handle checks for non vehicle actors
-                    //dataLog.Enqueue(acmi.ACMIEvent("Destroyed", null, actor));
-                    //
-                    
-                    dataLog.Enqueue($"-{actor}");
-
+                    oldEntry = knownActors[support.GetObjectID(rocket)];
+                    acmiString = newEntry.ACMIString(oldEntry);
+                    knownActors[support.GetObjectID(rocket)] = newEntry;
+                }
+                else
+                {
+                    acmiString = newEntry.ACMIString();
+                    knownActors.Add(support.GetObjectID(rocket), newEntry);
+                }
+                if (acmiString != "")
+                {
+                    dataLog.Append("\n" + acmiString);
                 }
             }
 
 
-            for (int i = 0; i < removedActors.Count; i++)
+            foreach (var actor in support.ClearAndGetOldObjectIds())
             {
-                knownActors.Remove(removedActors[i]);
-            }
+                /* If we weren't updated, then we don't exist anymore */
 
+                // Need to handle checks for non vehicle actors
+                //if (knownActors[actor]._basicTypes.Contains("FixedWing") ||
+                //    knownActors[actor]._basicTypes.Contains("Vehicle"))
+                //{
+                //    /* If this is a vehicle, we can send the destroyed ACMI event */
+                //    dataLog.Append("\n" +acmi.ACMIEvent("Destroyed", null, actor));
+                //}
+
+                dataLog.Append("\n" + $"-{actor}");
+                knownActors.Remove(actor);
+            }
         }
 
         public ACMIDataEntry buildFlareEntry(CMFlare flare)
         {
             ACMIDataEntry entry = new ACMIDataEntry();
 
-            entry.objectId = support.getFlareID(flare);
+            entry.objectId = support.GetObjectID(flare);
 
             Vector3D coords = support.convertPositionToLatLong_raw(flare.transform.position);
 
@@ -666,12 +736,25 @@ namespace TacViewDataLogger
 
             return entry;
         }
+        public ACMIDataEntry buildChaffEntry(ChaffCountermeasure.Chaff chaff)
+        {
+            ACMIDataEntry entry = new ACMIDataEntry();
+
+            entry.objectId = support.GetObjectID(chaff);
+
+            Vector3D coords = support.convertPositionToLatLong_raw(chaff.position);
+
+            entry.locData = $"{coords.y} | {coords.x} | {coords.z}";
+            entry._specificTypes = "Chaff";
+
+            return entry;
+        }
 
         public ACMIDataEntry buildBulletEntry(Bullet bullet)
         {
             entry = new ACMIDataEntry();
 
-            entry.objectId = support.getBulletID(bullet);
+            entry.objectId = support.GetObjectID(bullet);
 
             Vector3D coords = support.convertPositionToLatLong_raw(bullet.transform.position);
 
@@ -681,35 +764,69 @@ namespace TacViewDataLogger
             return entry;
         }
 
+        public ACMIDataEntry buildRocketEntry(Rocket rocket, float customOffset = 0f)
+        {
+            entry = new ACMIDataEntry();
+
+            entry.name = rocket.name.Replace("(Clone)", "");
+
+            Vector3D coords = support.convertPositionToLatLong_raw(rocket.transform.position);
+
+            double headingNum = Math.Atan2(rocket.transform.forward.x, rocket.transform.forward.z) * Mathf.Rad2Deg;
+
+            if (headingNum < 0)
+            {
+                headingNum += 360;
+            }
+
+            Vector3 forward = rocket.transform.forward;
+            forward.y = 0f;
+
+            float pitch = VectorUtils.SignedAngle(forward, rocket.transform.forward, Vector3.up);
+
+            Vector3 toDirection = Vector3.ProjectOnPlane(rocket.transform.up, forward);
+            float roll = VectorUtils.SignedAngle(Vector3.up, toDirection, Vector3.Cross(Vector3.up, forward));
+
+            entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(roll, 2)} | {Math.Round(pitch, 2)} | {Math.Round(headingNum, 2) - customOffset}";
+
+            entry.objectId = support.GetObjectID(rocket);
+
+            entry._specificTypes = "Rocket";
+
+            return entry;
+        }
+
         public ACMIDataEntry buildDataEntry(Actor actor)
         {
             entry = new ACMIDataEntry();
-            entry.objectId = actor.gameObject.GetInstanceID().ToString("X").ToLower();
+            entry.objectId = support.GetObjectID(actor);
 
             //actorName = actor's name in the mission
             //name = actor's unit name
 
-
+            bool isRed;
             if (actor.team.ToString() == "Allied")
             {
                 entry.color = "Blue";
+                isRed = false;
             }
             else
             {
                 entry.color = "Red";
+                isRed = true;
             }
 
             if (PilotSaveManager.current.pilotName == actor.actorName)
             {
 
-                entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
-                entry = actorProcessor.playerVehicleDataEntry(actor, entry, customSceneOffset);
+                entry = actorProcessor.airVehicleDataEntry(actor, entry, isRed, customSceneOffset);
+                entry = actorProcessor.playerVehicleDataEntry(actor, entry, isRed, customSceneOffset);
 
             }
             else if (actor.role == Actor.Roles.Air)
             {
                 //support.WriteLog("Air");
-                entry = actorProcessor.airVehicleDataEntry(actor, entry, customSceneOffset);
+                entry = actorProcessor.airVehicleDataEntry(actor, entry, isRed, customSceneOffset);
             }
             else if (actor.role == Actor.Roles.Ground)
             {
