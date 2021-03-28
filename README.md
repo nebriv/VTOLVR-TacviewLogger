@@ -124,3 +124,4 @@ If you wish to report any bugs you can do so by creating a new Issue in this Git
          - Thanks for the big PR with some bug patches!
  - thehamsterjam
          -  Providing a bug fix for internationalization! Thanks!
+

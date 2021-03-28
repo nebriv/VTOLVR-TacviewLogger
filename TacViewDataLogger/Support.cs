@@ -33,6 +33,81 @@ namespace TacViewDataLogger
 
     public class support
     {
+        struct ActorEntryValue
+        {
+            private static int redCallsignIndex = 0;
+            private static int blueCallsignIndex = 0;
+            public ActorEntryValue(String uniqueID)
+            {
+                this.uniqueID = uniqueID;
+                recentlyAdded = true;
+                updated = true;
+                needsUpdating = true;
+                callsign = "";
+            }
+            public void Update()
+            {
+                updated = true;
+            }
+            public void Clear()
+            {
+                recentlyAdded = false;
+                updated = false;
+            }
+            public void GenerateCallsign(bool isRed)
+            {
+                if (isRed)
+                {
+                    callsign = "Tango " + redCallsignIndex++;
+                }
+                else
+                {
+                    callsign = "Alpha " + blueCallsignIndex++;
+                }
+            }
+            public String uniqueID;
+            public bool recentlyAdded;
+            public bool updated;
+            public bool needsUpdating;
+            public String callsign;
+        }
+        static Dictionary<object, ActorEntryValue> objectIDs = new Dictionary<object, ActorEntryValue>();
+        static List<string> removedObjectIDs = new List<string>();
+
+        private static long nextID = 0x2000;
+        public static string GenerateUniqueID()
+        {
+            return nextID++.ToString("X").ToLower();
+        }
+
+        /* Since the bullets come from a pool, we have to access the bullet's KillBullet method
+         * in order to keep track of which bullets are still being used
+         * By keeping track of the removed bullets we can maintain a list of "killed" bullets
+         * and add them to the removed list when it's called, and we can remove the bullet from the dictionary
+         * so we don't keep track of it and a new entry is created when a new bullet is fired
+         */
+        [Harmony.HarmonyPatch(typeof(Bullet), "KillBullet")]
+        class BulletKillPatch
+        {
+            static void Postfix(object __instance)
+            {
+                if (!objectIDs.ContainsKey(__instance)) return;
+                removedObjectIDs.Add(GetObjectID(__instance));
+                objectIDs.Remove(__instance);
+            }
+        }
+        [Harmony.HarmonyPatch(typeof(FlareCountermeasure), "OnFlareDecayed")]
+        class FlareDecayPatch
+        {
+            static void Postfix(CMFlare f)
+            {
+                if (!objectIDs.ContainsKey(f)) return;
+                removedObjectIDs.Add(GetObjectID(f));
+                objectIDs.Remove(f);
+            }
+        }
+
+
         public VTMapManager mm;
         public static void WriteLog(string line)
         {
@@ -46,7 +121,7 @@ namespace TacViewDataLogger
 
         public static List<Actor> getActorsByRoll(Actor.Roles role)
         {
-            
+
             List<Actor> actors = TargetManager.instance.allActors;
             List<Actor> filtered = new List<Actor>();
 
@@ -62,29 +137,69 @@ namespace TacViewDataLogger
 
         }
 
-        public static string getActorID(Actor actor)
+        public static string GetObjectID(object obj)
         {
-            return actor.gameObject.GetInstanceID().ToString("X").ToLower();
+            if (!objectIDs.ContainsKey(obj))
+            {
+                /* If we don't have this object, return "1" to ensure it doesn't conflict with a known ID */
+                return "1";
+            }
+            return objectIDs[obj].uniqueID;
         }
-
-        public static string getFlareID(CMFlare flare)
+        public static void UpdateID(object obj, bool needsUpdating = true)
         {
-            return flare.gameObject.GetInstanceID().ToString("X").ToLower();
+            if (!objectIDs.ContainsKey(obj))
+            {
+                objectIDs[obj] = new ActorEntryValue(GenerateUniqueID());
+            }
+            ActorEntryValue tmp;
+            objectIDs.TryGetValue(obj, out tmp);
+            tmp.Update();
+            tmp.needsUpdating = needsUpdating;
+            objectIDs[obj] = tmp;
         }
-
-        public static string getBulletID(Bullet bullet)
+        public static string GetObjectCallsign(object obj, bool isRed)
         {
-            return bullet.gameObject.GetInstanceID().ToString("X").ToLower();
+            if (objectIDs[obj].callsign == "")
+            {
+                ActorEntryValue tmp;
+                objectIDs.TryGetValue(obj, out tmp);
+                tmp.GenerateCallsign(isRed);
+                objectIDs[obj] = tmp;
+            }
+            return objectIDs[obj].callsign;
         }
-
-        public static string getAirportID(AirportManager airport)
+        public static IEnumerable<string> ClearAndGetOldObjectIds()
         {
-            return airport.GetInstanceID().ToString("X").ToLower();
+            var notUpdated = new List<string>();
+
+            var newDictionary = new Dictionary<object, ActorEntryValue>();
+
+            foreach (var obj in objectIDs)
+            {
+                if (!obj.Value.updated && obj.Value.needsUpdating)
+                {
+                    notUpdated.Add(obj.Value.uniqueID);
+                }
+                else
+                {
+                    ActorEntryValue tmp = obj.Value;
+                    tmp.Clear();
+                    newDictionary[obj.Key] = tmp;
+                }
+            }
+            objectIDs = newDictionary;
+
+            /* Add the objects removed via patches */
+            notUpdated.AddRange(removedObjectIDs);
+            removedObjectIDs = new List<string>();
+
+            return notUpdated;
         }
 
         public static string cleanString(string input)
         {
-            string clean = input.Replace("\\", "").Replace("/", "").Replace("<", "").Replace(">", "").Replace("*", "").Replace("\"", "").Replace("?", "").Replace(":", "").Replace("|", "").Replace(" ","");
+            string clean = input.Replace("\\", "").Replace("/", "").Replace("<", "").Replace(">", "").Replace("*", "").Replace("\"", "").Replace("?", "").Replace(":", "").Replace("|", "").Replace(" ", "");
             return clean;
         }
         public VTMap getMap()
@@ -93,23 +208,32 @@ namespace TacViewDataLogger
 
             support.WriteLog($"Looking for Map ID {VTScenario.current.mapID}");
             map = VTResources.GetMap(VTScenario.current.mapID);
+            support.WriteLog("Done looking for map id");
             if (map == null)
             {
+                support.WriteLog("Getting custom map 1");
                 VTMapCustom custommap = VTResources.GetCustomMap(VTScenario.current.mapID);
                 return custommap;
             }
             if (map == null)
             {
+                support.WriteLog("Getting custom map 2");
                 VTMapCustom custommap = VTResources.GetSteamWorkshopMap(VTScenario.current.mapID);
                 return custommap;
             }
 
+            support.WriteLog("MM check");
             if (mm != null)
             {
+                support.WriteLog("MM exists, Map null check?");
                 if (map == null)
                 {
-                    support.WriteLog("Got map from map manager");
+                    support.WriteLog("Map not null. Get map from map manager");
                     return VTMapManager.fetch.map;
+                }
+                else
+                {
+                    support.WriteLog("Map is null");
                 }
             }
             else
@@ -118,10 +242,9 @@ namespace TacViewDataLogger
             }
 
 
-
-
             if (map != null)
             {
+                support.WriteLog("Returning map.");
                 return map;
             }
             else
