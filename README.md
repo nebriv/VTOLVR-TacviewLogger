@@ -47,7 +47,7 @@ To use the mod simply install the mod, launch the game, and enable the mod. At t
  	 - https://vtolvr.bdynamicsstudio.com/
 	 
 ### Downloading and Installing
-This mod will be available for download on https://vtolvr-mods.com (*Insert direct link when uploaded*). I would recommend using the One-Click Install function to automatically download the mod.
+This mod will be available for download on [https://vtolvr-mods.com](https://vtolvr-mods.com/mod/ctvzwocs/). I would recommend using the One-Click Install function to automatically download the mod.
 
 Alternatively you can download the latest release here:
 https://github.com/nebriv/VTOLVR-TacviewLogger/releases/latest
