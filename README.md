@@ -52,20 +52,20 @@ This mod will be available for download on https://vtolvr-mods.com (*Insert dire
 Alternatively you can download the latest release here:
 https://github.com/nebriv/VTOLVR-TacviewLogger/releases/latest
 
-If you are manually installing you need to place the downloaded zip file in your VTOL VR Game folder inside the VTOLVR_ModLoader\mods\ directory. The mod loader should automatically detect and unzip it for you once launched.
+If you are manually installing you need to place the downloaded zip file in your VTOL VR Game folder inside the `VTOLVR_ModLoader\mods\` directory. The Mod Loader should automatically detect and unzip it for you once launched.
 
 ### Running
-To use the mod simply launch the game via the mod loader (open the mod loader and press play). Once in game, after you click start you should see a "Mods" button. Open the mods page, select the Tacview Data Logger and click load. You should be good to go! At the start of the first few missions (and on those of particular importance) I would recommend browsing to the TacViewDataLogs folder within the VTOL VR game folder, and making sure you see a new folder with today's date and time, in that folder should be the three files described below.
+To use the mod simply launch the game via the Mod Loader (open the Mod Loader and press play). Once in game, after you click start you should see a "Mods" button. Open the mods page, select the Tacview Data Logger and click load. You should be good to go! At the start of the first few missions (and on those of particular importance) I would recommend browsing to the `TacViewDataLogs` folder within the VTOL VR game folder, and making sure you see a new folder with today's date and time, in that folder should be the three files described below.
 
 ### Data Structure
 
-All flight recordings are stored in the VTOL VR Game Folder under TacViewDataLogs. Within this folder multiple folders with the datetime stamp of the flight will be created. Within this flight folder three files should be created.
- - datalog.acmi
+All flight recordings are stored in the VTOL VR Game Folder under `TacViewDataLogs`. Within this folder multiple folders with the datetime stamp of the flight will be created. Within this flight folder three files should be created.
+ - `datalog.acmi`
 	 - This is the primary datalog created for viewing in Tacview. With Tacview installed, you should simply be able to double click this and open it.
- - customHeightMapXML.txt
+ - `customHeightMapXML.txt`
 	 - This is custom XML used to display the exported heightmap. See the heightmap section below.
- - heightmap_MAPName.data
-	 - This is the heightmap data. Copy this file into C:\ProgramData\Tacview\Data\Terrain\Custom\. See Height Maps/Terrain for more details.
+ - `heightmap_MAPName.data`
+	 - This is the heightmap data. Copy this file into `C:\ProgramData\Tacview\Data\Terrain\Custom\`. See Height Maps/Terrain for more details.
 
 ### Logged Parameters
 All active actors (vehicles and projectiles) within a scene are logged.
@@ -79,16 +79,16 @@ The following parameters are generally all logged. Some ground and water vehicle
 
 ### Models
 VTOL VR models can be added to Tacview via the following steps:
- 1. Copy the vtolvr.xml file to C:\ProgramData\Tacview\Data\Database\Default Properties
- 2. Copy all the .obj files from the assets folder into C:\ProgramData\Tacview\Data\Meshes
+ 1. Copy the vtolvr.xml file to `C:\ProgramData\Tacview\Data\Database\Default` Properties
+ 2. Copy all the .obj files from the assets folder into `C:\ProgramData\Tacview\Data\Meshes`
 
 All VTOL VR models are property of Boundless Dynamics, LLC. except the F-45 and F/A-26 Models created by F/A-26B on the VTOL VR Discord Channel.
 
 ### Height Maps/Terrain
-Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see customHeightMapXML.txt and heightmap_MAPNAME.data. To use this heightmap in Tacview follow the below steps.
- 1. If you haven't done so, copy the CustomHeightmapList.xml file from C:\Program Files (x86)\Tacview (beta)\Data\Terrain\Custom into C:\ProgramData\Tacview\Data\Terrain\Custom.
- 2. Copy the .data file to C:\ProgramData\Tacview\Data\Terrain\Custom.
- 3. Copy the contents of the customHeightMapXML.txt file (Except for "\<?xml version="1.0" encoding="utf-8"?\>") into the new CustomHeightmapList.xml (C:\ProgramData\Tacview\Data\Terrain\Custom\CustomHeightmapList.xml) between the \<CustomHeightmapList\> nodes. Any XML parsing errors in this file will cause Tacview to not properly load the terrain. 
+Height maps are generally generated and exported at the start of every mission. They will be located in the mission's datalog folder. You should see `customHeightMapXML.txt` and `heightmap_MAPNAME.data`. To use this heightmap in Tacview follow the below steps.
+ 1. If you haven't done so, copy the `CustomHeightmapList.xml` file from `C:\Program Files (x86)\Tacview (beta)\Data\Terrain\Custom` into `C:\ProgramData\Tacview\Data\Terrain\Custom`.
+ 2. Copy the `.data` file to `C:\ProgramData\Tacview\Data\Terrain\Custom`.
+ 3. Copy the contents of the `customHeightMapXML.txt` file (Except for `<?xml version="1.0" encoding="utf-8"?>`) into the new `CustomHeightmapList.xml` (`C:\ProgramData\Tacview\Data\Terrain\Custom\CustomHeightmapList.xml`) between the `<CustomHeightmapList>` nodes. Any XML parsing errors in this file will cause Tacview to not properly load the terrain. 
 
 ## Reporting Bugs
 If you wish to report any bugs you can do so by creating a new Issue in this Github repository or you can contact me on the VTOL VR modding discord (@nebriv0001). When reporting bugs please include as much detail as possible including steps to reproduce. If possible please include your player.log file as well as your TacviewDataLogger data for the mission(s) in question.
