@@ -21,7 +21,7 @@ namespace TacViewDataLogger
 
         public static string projectName = "VTOL VR Tacview Data Logger";
         public static string projectAuthor = "Nebriv,TytanRock";
-        public static string projectVersion = "v2.5";
+        public static string projectVersion = "v2.6";
 
     }
 
@@ -574,30 +574,34 @@ namespace TacViewDataLogger
 
             foreach (var actor in actors)
             {
+                if (actor != null) {
+                    acmiString = "";
+                    support.UpdateID(actor);
 
-                acmiString = "";
-                support.UpdateID(actor);
+                    newEntry = buildDataEntry(actor);
 
-                newEntry = buildDataEntry(actor);
+                    // If this is already a tracked actor
+                    if (knownActors.ContainsKey(support.GetObjectID(actor)))
+                    {
+                        oldEntry = knownActors[support.GetObjectID(actor)];
 
-                // If this is already a tracked actor
-                if (knownActors.ContainsKey(support.GetObjectID(actor)))
+                        // Diff the old entry and the new entry. Update the old entry with the new entry.
+                        //acmiString = newEntry.ACMIString();
+                        acmiString = newEntry.ACMIString(oldEntry);
+                        knownActors[support.GetObjectID(actor)] = newEntry;
+                    }
+                    else
+                    {
+                        acmiString = newEntry.ACMIString();
+                        knownActors.Add(support.GetObjectID(actor), newEntry);
+                    }
+                    if ((acmiString != "") && (acmiString.Contains(",")))
+                    {
+                        dataLog.Append("\n" + acmiString);
+                    }
+                } else
                 {
-                    oldEntry = knownActors[support.GetObjectID(actor)];
-
-                    // Diff the old entry and the new entry. Update the old entry with the new entry.
-                    //acmiString = newEntry.ACMIString();
-                    acmiString = newEntry.ACMIString(oldEntry);
-                    knownActors[support.GetObjectID(actor)] = newEntry;
-                }
-                else
-                {
-                    acmiString = newEntry.ACMIString();
-                    knownActors.Add(support.GetObjectID(actor), newEntry);
-                }
-                if ((acmiString != "") && (acmiString.Contains(",")))
-                {
-                    dataLog.Append("\n" + acmiString);
+                    //support.WriteLog("Error - Got a null actor!");
                 }
             }
 
@@ -798,6 +802,7 @@ namespace TacViewDataLogger
 
         public ACMIDataEntry buildDataEntry(Actor actor)
         {
+
             entry = new ACMIDataEntry();
             entry.objectId = support.GetObjectID(actor);
 
@@ -855,6 +860,7 @@ namespace TacViewDataLogger
             }
 
             return entry;
+
         }
 
 

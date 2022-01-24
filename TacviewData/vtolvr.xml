@@ -443,6 +443,18 @@
 		</Properties>
 	</DefaultProperties>
 
+	<DefaultProperties Id="FixedWing.VTOLAH-94" Base="Core.FixedWing">
+		<Criteria>
+			<Name>AH-94</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>AH-94</ShortName>
+			<LongName>AH-94</LongName>
+			<FullName>AH-94</FullName>
+			<Shape>vtolvr_ah-94.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
 <!-- 	<DefaultProperties Id="FixedWing.GAV-25" Base="FixedWing.Fighter.Jet">
 		<Criteria>
 			<Name></Name>

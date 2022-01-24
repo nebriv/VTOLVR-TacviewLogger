@@ -11,27 +11,35 @@ namespace TacViewDataLogger
 
         public ACMIDataEntry airVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
         {
-            Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
-            entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
-            entry._basicTypes = "FixedWing";
-            entry.callSign = support.GetObjectCallsign(actor, isRed);
-            entry.name = actor.actorName;
-            if (actor.currentlyTargetingActor != null)
+            if (actor != null) {
+                Vector3D coords = support.convertPositionToLatLong_raw(actor.transform.position);
+                entry.locData = $"{Math.Round(coords.y, 7)} | {Math.Round(coords.x, 7)} | {Math.Round(coords.z, 7)} | {Math.Round(actor.flightInfo.roll, 2)} | {Math.Round(actor.flightInfo.pitch, 2)} | {Math.Round(actor.flightInfo.heading, 2) - customOffset}";
+                entry._basicTypes = "FixedWing";
+                entry.callSign = support.GetObjectCallsign(actor, isRed);
+                entry.name = actor.actorName;
+                if (actor.currentlyTargetingActor != null)
+                {
+                    entry.lockedTarget = support.GetObjectID(actor.currentlyTargetingActor);
+                }
+
+                entry.aoa = Math.Round(actor.flightInfo.aoa, 2).ToString();
+                entry.tas = Math.Round(actor.flightInfo.airspeed, 2).ToString();
+                entry.ias = AerodynamicsController.fetch.IndicatedAirspeed(actor.flightInfo.airspeed, actor.flightInfo.rb.position).ToString();
+                entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
+                entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
+
+                //entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
+                //entry.radarMode = DataGetters.getRadarState(actor.gameObject);
+                //entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
+
+                return entry;
+
+            } else
             {
-                entry.lockedTarget = support.GetObjectID(actor.currentlyTargetingActor);
+                support.WriteErrorLog("Actor is null.");
+                throw new Exception("Actor is null.");
             }
 
-            entry.aoa = Math.Round(actor.flightInfo.aoa, 2).ToString();
-            entry.tas = Math.Round(actor.flightInfo.airspeed, 2).ToString();
-            entry.ias = AerodynamicsController.fetch.IndicatedAirspeed(actor.flightInfo.airspeed, actor.flightInfo.rb.position).ToString();
-            entry.altitude = Math.Round(actor.flightInfo.altitudeASL, 2).ToString();
-            entry.agl = Math.Round(actor.flightInfo.radarAltitude).ToString();
-
-            //entry.afterburner = DataGetters.getAfterburners(actor.gameObject);
-            //entry.radarMode = DataGetters.getRadarState(actor.gameObject);
-            //entry.fuelWeight = DataGetters.getFuelMass(actor.gameObject);
-
-            return entry;
         }
 
         public ACMIDataEntry playerVehicleDataEntry(Actor actor, ACMIDataEntry entry, bool isRed, float customOffset = 0f)
