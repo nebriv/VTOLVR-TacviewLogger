@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ModLoader</name>
+    </assembly>
+    <members>
+        <member name="T:VTOLAPI">
+            <summary>
+            This is the VTOL VR Modding API which aims to simplify repetitive tasks.
+            </summary>
+        </member>
+        <member name="P:VTOLAPI.instance">
+            <summary>
+            This is the current instance of the API in the game world.
+            </summary>
+        </member>
+        <member name="F:VTOLAPI.SceneLoaded">
+            <summary>
+            This gets invoked when the scene has changed and finished loading. 
+            This should be the safest way to start running code when a level is loaded.
+            </summary>
+        </member>
+        <member name="F:VTOLAPI.MissionReloaded">
+            <summary>
+            This gets invoked when the mission as been reloaded by the player.
+            </summary>
+        </member>
+        <member name="P:VTOLAPI.currentScene">
+            <summary>
+            The current scene which is active.
+            </summary>
+        </member>
+        <member name="M:VTOLAPI.GetSteamID">
+            <summary>
+            Returns the steam ID of the player which is using this mod.
+            </summary>
+        </member>
+        <member name="M:VTOLAPI.SteamId">
+            <summary>
+            Returns the steam ID of the player which is using this mod.
+            </summary>
+        </member>
+        <member name="M:VTOLAPI.GetSteamName">
+            <summary>
+            Returns the current name of the steam user, if they change their name during play session, this doesn't update.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VTOLAPI.SteamName">
+            <summary>
+            Returns the current name of the steam user, if they change their name during play session, this doesn't update.
+            </summary>
+        </member>
+        <member name="M:VTOLAPI.GetPlayersVehicleGameObject">
+            <summary>
+            [MP Supported]
+            Searches for the game object of the player by using the prefab name appending (Clone).
+            For multiplayer it uses the lobby manager to get the local player
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VTOLAPI.GetPlayersVehicleEnum">
+            <summary>
+            Returns which vehicle the player is using in a Enum.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VTOLAPI.CreateSettingsMenu(Settings)">
+            <summary>
+            Creates a settings page in the `mod settings` tab.
+            Make sure to fully create your settings before calling this as you 
+            can't change it onces it's created.
+            </summary>
+            <param name="newSettings"></param>
+        </member>
+        <member name="M:VTOLAPI.GetUsersMods">
+            <summary>
+            Returns a list of mods which are currently loaded
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VTOLAPI.GetUsersOrderedMods">
+            <summary>
+            Returns an ordered string of mods which are currently loaded
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VTOLAPI.WaitForScenarioReload">
+            <summary>
+            Please don't use this, this is for the mod loader only.
+            </summary>
+        </member>
+        <member name="M:VTOLAPI.RegisterMod(VTOLMOD)">
+            <summary>
+            You need to Register your mod before you start setting values inside your Shared Data
+            </summary>
+            <param name="mod">Your mod's class (use "this")</param>
+        </member>
+        <member name="M:VTOLAPI.SetValue(VTOLMOD,System.String,System.Object,System.Boolean@)">
+            <summary>
+            Sets a value for your mods shared data.
+            </summary>
+            <param name="mod">Your mod (use "this")</param>
+            <param name="key">The key you want to use. if it's already existing, it will be overridden</param>
+            <param name="value">the value you want to set it to</param>
+            <param name="isSuccessful">if it was successful in setting it</param>
+        </member>
+        <member name="M:VTOLAPI.GetValue(System.String,System.String,System.Boolean@,System.Object@,VTOLAPI.ErrorResult@)">
+            <summary>
+            Gets a value stored in the Mod Shared Data inside the API
+            </summary>
+            <param name="modName">The name of the mod. CASE SENSITIVE</param>
+            <param name="key">The key in the dictionary</param>
+            <param name="isSuccessful">If the value was found</param>
+            <param name="value">The stored value inside the dictionary if it was there. This will be null if it wasn't found</param>
+            <param name="error">Reason why it couldn't find the key, this will be None if it was found</param>
+        </member>
+        <member name="T:VTOLScenes">
+            <summary>
+            All the different scenes in order.
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.SplashScene">
+            <summary>
+            The first scene you see when you launch up the game.
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.SamplerScene">
+            <summary>
+            The carrier scene were you press start game.
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.ReadyRoom">
+            <summary>
+            The Main Menu
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.VehicleConfiguration">
+            <summary>
+            The room where you select the weapons and skins before starting a secnario
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.LoadingScene">
+            <summary>
+            The helmet room where you wait for the game to load.
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.OpenWater">
+            <summary>
+            A plane empty scene with just water.
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.Akutan">
+            <summary>
+            The Map called Akutan
+            </summary>
+        </member>
+        <member name="F:VTOLScenes.CustomMapBase">
+            <summary>
+            The base scene for all custom maps.
+            </summary>
+        </member>
+        <member name="T:VTOLVehicles">
+            <summary>
+            Enum of the different vehicles in the game.
+            </summary>
+        </member>
+        <member name="F:VTOLVehicles.None">
+            <summary>
+            None means the pilot hasn't selected a vehicle yet
+            </summary>
+        </member>
+        <member name="F:VTOLVehicles.AV42C">
+            <summary>
+            The A/V-42C 
+            </summary>
+        </member>
+        <member name="F:VTOLVehicles.FA26B">
+            <summary>
+            The F/A-26B
+            </summary>
+        </member>
+        <member name="F:VTOLVehicles.F45A">
+            <summary>
+            The F-45A
+            </summary>
+        </member>
+        <member name="F:VTOLVehicles.AH94">
+            <summary>
+            The AH-94
+            </summary>
+        </member>
+        <member name="F:ModLoader.Classes.ModdedMPLobbyKeys.ModLoaderVersion">
+            <summary>
+            The steam lobby key for getting the servers modloader version
+            </summary>
+        </member>
+        <member name="M:ModLoader.Discord.DiscordRpc.RichPresence.GetStruct">
+            <summary>
+            Get the <see cref="T:ModLoader.Discord.DiscordRpc.RichPresenceStruct"/> reprensentation of this instance
+            </summary>
+            <returns><see cref="T:ModLoader.Discord.DiscordRpc.RichPresenceStruct"/> reprensentation of this instance</returns>
+        </member>
+        <member name="M:ModLoader.Discord.DiscordRpc.RichPresence.StrToPtr(System.String)">
+            <summary>
+            Returns a pointer to a representation of the given string with a size of maxbytes
+            </summary>
+            <param name="input">String to convert</param>
+            <returns>Pointer to the UTF-8 representation of <see cref="!:input"/></returns>
+        </member>
+        <member name="M:ModLoader.Discord.DiscordRpc.RichPresence.StrToUtf8NullTerm(System.String)">
+            <summary>
+            Convert string to UTF-8 and add null termination
+            </summary>
+            <param name="toconv">string to convert</param>
+            <returns>UTF-8 representation of <see cref="!:toconv"/> with added null termination</returns>
+        </member>
+        <member name="M:ModLoader.Discord.DiscordRpc.RichPresence.FreeMem">
+            <summary>
+            Free the allocated memory for conversion to <see cref="T:ModLoader.Discord.DiscordRpc.RichPresenceStruct"/>
+            </summary>
+        </member>
+        <member name="M:ModLoader.ModLoader.FindModIndex(System.String)">
+            <summary>
+            Finds the index of the current mod by its name.
+            </summary>
+            <param name="name">Mod.name value of what you want to find</param>
+            <returns>The index of where this mod is in the currentMods list</returns>
+        </member>
+        <member name="T:ModLoader.ModLoaderManager">
+            <summary>
+            This class is to handle the changes between scenes
+            </summary>
+        </member>
+        <member name="T:ModLoader.Patches.VTMPMainMenu_LaunchMPGameForScenario">
+            <summary>
+            Adds extra information to the lobby data for modded clients
+            </summary>
+        </member>
+        <member name="F:ModLoader.SkinManager.materials">
+            <summary>
+            All the materials in the game
+            </summary>
+        </member>
+        <member name="F:ModLoader.SkinManager.defaultTextures">
+            <summary>
+            The default textures so we can revert back
+            </summary>
+        </member>
+        <member name="M:ModLoader.ModReader.GetMods">
+            <summary>
+            Gets all of the mods info located in the path into memory
+            </summary>
+            <param name="path">The folder to check for mods</param>
+            <param name="isDevFolder">If we are checking through the users My Projects Folder</param>
+        </member>
+        <member name="T:Mod">
+            <summary>
+            The information stored about a mod which is used by the mod loader
+            and can be used by mods with the API command GetUsersMods
+            </summary>
+        </member>
+        <member name="F:Mod.name">
+            <summary>
+            The name of the mod which displays on the mods page.
+            </summary>
+        </member>
+        <member name="F:Mod.description">
+            <summary>
+            The description of the mod which displays when the mod is selected. 
+            </summary>
+        </member>
+        <member name="F:Mod.dllPath">
+            <summary>
+            The location of the .dll file of this mod.
+            </summary>
+        </member>
+        <member name="F:Mod.isLoaded">
+            <summary>
+            If the mod is currently loaded.
+            </summary>
+        </member>
+        <member name="F:Mod.ModFolder">
+            <summary>
+            The folder which the mods dll and other files are stored.
+            </summary>
+        </member>
+        <member name="T:VTOLMOD">
+            <summary>
+            Base Class for any mod so that the mod loader knows what class to load.
+            </summary>
+        </member>
+        <member name="P:VTOLMOD.ThisMod">
+            <summary>
+            Storing the Mods data in a class
+            </summary>
+        </member>
+        <member name="P:VTOLMOD.ModFolder">
+            <summary>
+            Gets the folder which this current dll is located.
+            Returns string.Empty if "ThisMod" is null
+            </summary>
+        </member>
+        <member name="M:VTOLMOD.ModLoaded">
+            <summary>
+            The method which gets called when the mod is loaded.
+            </summary>
+        </member>
+        <member name="M:VTOLMOD.Log(System.Object)">
+            <summary>
+            Logs a message to the console with your mod name.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:VTOLMOD.LogWarning(System.Object)">
+            <summary>
+            Logs a warning message to the console with your mod name.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:VTOLMOD.LogError(System.Object)">
+            <summary>
+            Logs a error message to the console with your mod name.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:VTOLMOD.SetModInfo(Mod)">
+            <summary>
+            Used by the mod loader to set ThisMod variable.
+            </summary>
+            <param name="thisMod"></param>
+        </member>
+    </members>
+</doc>
