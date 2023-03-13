@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DefaultPropertiesCollection LoadingOrder="1.0">
+	<DefaultProperties Id="FixedWing.VTOLB-11" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>B-11 Bomber</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>B-11 Bomber</ShortName>
+			<LongName>B-11 Bomber</LongName>
+			<FullName>B-11 Bomber</FullName>
+			<Shape>vtolvrABomberAI.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+	<DefaultProperties Id="FixedWing.VTOLE-4" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>E-4 Overlord</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>E-4</ShortName>
+			<LongName>E-4 Overlord</LongName>
+			<FullName>E-4 Overlord</FullName>
+			<Shape>vtolvrE-4.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLKC-49" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>KC-49</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>KC-49</ShortName>
+			<LongName>KC-49</LongName>
+			<FullName>KC-49</FullName>
+			<Shape>vtolvr_KC-49.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLF-45" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>F-45</Name>
+			<Name>SEVTF</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>F-45</ShortName>
+			<LongName>F-45 Ghost</LongName>
+			<FullName>KC-49</FullName>
+			<Shape>vtolvr_F-45A.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLFA-26" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>F/A-26</Name>
+			<Name>F/A-26B</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>F/A-26</ShortName>
+			<LongName>F/A-26 Wasp</LongName>
+			<FullName>KC-49</FullName>
+			<Shape>vtolvr_FA-26.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLAV-42" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>AV-42</Name>
+			<Name>VTOL4</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>AV-42</ShortName>
+			<LongName>AV-42</LongName>
+			<FullName>AV-42</FullName>
+			<Shape>vtolvr_AV-42CAI.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLMQ-31" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>MQ-31</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>MQ-31</ShortName>
+			<LongName>MQ-31</LongName>
+			<FullName>MQ-31</FullName>
+			<Shape>vtolvr_MQ-31.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="WarShip.VTOLAssaultCarrier" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>Assault Carrier</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Assault Carrier</ShortName>
+			<LongName>Assault Carrier</LongName>
+			<FullName>Assault Carrier</FullName>
+			<Shape>vtolvr_AlliedAAShip.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="WarShip.VTOLEscortCruiser" Base="Watercraft.Military">
+		<Criteria>
+			<Name>Cruiser</Name>
+			<Name>Escort Cruiser</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Escort Cruiser</ShortName>
+			<LongName>Escort Carrier</LongName>
+			<FullName>Escort Carrier</FullName>
+			<Shape>vtolvr_EscortCruiser.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="WarShip.VTOLCarrier" Base="Watercraft.Military">
+		<Criteria>
+			<Name>Carrier</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Carrier</ShortName>
+			<LongName>Carrier</LongName>
+			<FullName>Carrier</FullName>
+			<Shape>vtolvr_AlliedCarrier.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.MantaUCAV" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>Manta UCAV</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Manta UCAV</ShortName>
+			<LongName>Manta UCAV</LongName>
+			<FullName>Manta UCAV</FullName>
+			<Shape>vtolvr_AIUCAV_enemy.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.ASF-30" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>ASF-30</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>ASF-30</ShortName>
+			<LongName>ASF-30</LongName>
+			<FullName>ASF-30</FullName>
+			<Shape>vtolvr_ASF-30.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.ASF-33" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>ASF-33</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>ASF-33</ShortName>
+			<LongName>ASF-33</LongName>
+			<FullName>ASF-33</FullName>
+			<Shape>vtolvr_ASF-33.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.ASF-58" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>ASF-58</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>ASF-58</ShortName>
+			<LongName>ASF-58</LongName>
+			<FullName>ASF-58</FullName>
+			<Shape>vtolvr_ASF-58.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.HB-106" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>HB-106</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>HB-106</ShortName>
+			<LongName>HB-106 Bomber</LongName>
+			<FullName>HB-106 Bomber</FullName>
+			<Shape>vtolvr_EBomberAI.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.GAV-25" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name>GAV-25</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>GAV-25</ShortName>
+			<LongName>GAV-25 Bullshark</LongName>
+			<FullName>GAV-25 Bullshark</FullName>
+			<Shape>vtolvr_GAV-25.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Vehicle.MPA-155" Base="Vehicle.Military">
+		<Criteria>
+			<Name>MPA-155</Name>
+			<Name>Artillery</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>MPA-155</ShortName>
+			<LongName>MPA-155 Artillery</LongName>
+			<FullName>GAV-25 Bullshark</FullName>
+			<Shape>vtolvr_Artillery.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Vehicle.MBT2-E" Base="Vehicle.Military.Tank">
+		<Criteria>
+			<Name>MBT2-E</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>MBT2-E</ShortName>
+			<LongName>MBT2-E</LongName>
+			<FullName>MBT2-E</FullName>
+			<Shape>vtolvr_enemyMBT1.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Vehicle.IRAPC" Base="Vehicle.Military.APC">
+		<Criteria>
+			<Name>IR APC</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>IRAPC</ShortName>
+			<LongName>IRAPC</LongName>
+			<FullName>IRAPC</FullName>
+			<Shape>vtolvr_IRAPC.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="AntiAircraft.MAD-4-Launcher" Base="AntiAircraft.SAM.Launcher">
+		<Criteria>
+			<Name>MAD-4 Launcher</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>MAD-4 Launcher</ShortName>
+			<LongName>MAD-4 Launcher</LongName>
+			<FullName>MAD-4 Launcher</FullName>
+			<Shape>vtolvr_MAD-4Launcher.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+
+	<DefaultProperties Id="AntiAircraft.MAD-4-Radar" Base="AntiAircraft.SAM.SearchAndTrackingRadar">
+		<Criteria>
+			<Name>MAD-4 Radar</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>MAD-4 Radar</ShortName>
+			<LongName>MAD-4 Radar</LongName>
+			<FullName>MAD-4 Radar</FullName>
+			<Shape>vtolvr_MAD-4Radar.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+
+	<DefaultProperties Id="AntiAircraft.SAAW" Base="Vehicle.Military.Truck">
+		<Criteria>
+			<Name>SAAW</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>SAAW</ShortName>
+			<LongName>SAAW</LongName>
+			<FullName>SAAW</FullName>
+			<Shape>vtolvr_SAAW.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+
+	<DefaultProperties Id="Building.BunkerA" Base="Core.Building">
+		<Criteria>
+			<Name>Bunker A</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Bunker A</ShortName>
+			<LongName>Bunker A</LongName>
+			<FullName>Bunker A</FullName>
+			<Shape>vtolvr_bunker1.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="AntiAircraft.SAMLauncher" Base="AntiAircraft.SAM.Launcher">
+		<Criteria>
+			<Name>SAM Launcher</Name>
+			<Name>SAM Battery</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>SAM Launcher</ShortName>
+			<LongName>SAM Launcher</LongName>
+			<FullName>SAM Launcher</FullName>
+			<Shape>vtolvr_SamBattery1.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="AntiAircraft.FireControl-Radar" Base="AntiAircraft.SAM.TrackingRadar">
+		<Criteria>
+			<Name>SAM FireCTRL Radar</Name>
+			<Name>SAM Radar</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>SAM FireCTRL Radar</ShortName>
+			<LongName>SAM FireCTRL Radar</LongName>
+			<FullName>SAM FireCTRL Radar</FullName>
+			<Shape>vtolvr_SAMFCR.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="AntiAircraft.Search-Radar" Base="AntiAircraft.SAM.SearchAndTrackingRadar">
+		<Criteria>
+			<Name>SAM S/A Radar</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>SAM S/A Radar</ShortName>
+			<LongName>SAM S/A Radar</LongName>
+			<FullName>SAM S/A Radar</FullName>
+			<Shape>vtolvr_SamFCR2.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="AntiAircraft.Z20" Base="Core.AntiAircraft">
+		<Criteria>
+			<Name>Z20x2 AAA</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Z20x2 AAA</ShortName>
+			<LongName>Z20x2 Anti-Air Artillery</LongName>
+			<FullName>Z20x2 Anti-Air Artillery</FullName>
+			<Shape>vtolvr_staticAAA-20x2.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Building.StorageTentA" Base="Core.Building">
+		<Criteria>
+			<Name>Storage Tent A</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Storage Tent A</ShortName>
+			<LongName>Storage Tent A</LongName>
+			<FullName>Storage Tent A</FullName>
+			<Shape>vtolvr_cylinderTent.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.DroneCarrier" Base="Core.Watercraft">
+		<Criteria>
+			<Name>Drone Carrier</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Drone Carrier</ShortName>
+			<LongName>Drone Carrier</LongName>
+			<FullName>Drone Carrier</FullName>
+			<Shape>vtolvr_DroneCarrier.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.GunBoat" Base="Core.Watercraft">
+		<Criteria>
+			<Name>Gun Boat</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Gun Boat</ShortName>
+			<LongName>Gun Boat</LongName>
+			<FullName>Gun Boat</FullName>
+			<Shape>vtolvr_DroneGunBoat.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.RocketBoat" Base="Core.Watercraft">
+		<Criteria>
+			<Name>Rocket Boat</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Rocket Boat</ShortName>
+			<LongName>Rocket Boat</LongName>
+			<FullName>Rocket Boat</FullName>
+			<Shape>vtolvr_DroneGunBoatRocket.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.DMSCrusier" Base="Core.Watercraft">
+		<Criteria>
+			<Name>DMS Cruiser</Name>
+			<Name>Drone Missile Ship</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>DMS Cruiser</ShortName>
+			<LongName>DMS Cruiser</LongName>
+			<FullName>DMS Cruiser</FullName>
+			<Shape>vtolvr_DroneMissileCruiser.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.NFPCarrier" Base="Core.Watercraft">
+		<Criteria>
+			<Name>NFP Carrier</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>NFP Carrier</ShortName>
+			<LongName>NFP Carrier</LongName>
+			<FullName>NFP Carrier</FullName>
+			<Shape>vtolvr_EnemyCarrier.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.NMSSCruiser" Base="Core.Watercraft">
+		<Criteria>
+			<Name>NMSS Cruiser</Name>
+			<Name>Super Missile Curiser</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>NMSS Cruiser</ShortName>
+			<LongName>NMSS Cruiser</LongName>
+			<FullName>NMSS Cruiser</FullName>
+			<Shape>vtolvr_ESuperMissileCruiser.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="Watercraft.MineBoat" Base="Core.Watercraft">
+		<Criteria>
+			<Name>Mine Boat</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Mine Boat</ShortName>
+			<LongName>Mine Boat</LongName>
+			<FullName>Mine Boat</FullName>
+			<Shape>vtolvr_MineBoat.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="SpaceShip.Mothership" Base="Core.FixedWing">
+		<Criteria>
+			<Name>Mothership</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>Mothership</ShortName>
+			<LongName>Mothership</LongName>
+			<FullName>Mothership</FullName>
+			<Shape>vtolvr_Mothership.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+	<DefaultProperties Id="FixedWing.VTOLAH-94" Base="Core.FixedWing">
+		<Criteria>
+			<Name>AH-94</Name>
+		</Criteria>
+		<Properties>
+			<ShortName>AH-94</ShortName>
+			<LongName>AH-94</LongName>
+			<FullName>AH-94</FullName>
+			<Shape>vtolvr_ah-94.obj</Shape>
+		</Properties>
+	</DefaultProperties>
+
+<!-- 	<DefaultProperties Id="FixedWing.GAV-25" Base="FixedWing.Fighter.Jet">
+		<Criteria>
+			<Name></Name>
+		</Criteria>
+		<Properties>
+			<ShortName></ShortName>
+			<LongName></LongName>
+			<FullName></FullName>
+			<Shape>.obj</Shape>
+		</Properties>
+	</DefaultProperties> -->
+
+</DefaultPropertiesCollection>
