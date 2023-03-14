@@ -20,8 +20,8 @@ namespace TacViewDataLogger
     {
 
         public static string projectName = "VTOL VR Tacview Data Logger";
-        public static string projectAuthor = "Nebriv,TytanRock";
-        public static string projectVersion = "v2.6";
+        public static string projectAuthor = "Nebriv,TytanRock,mattidg";
+        public static string projectVersion = "v2.7";
 
     }
 
