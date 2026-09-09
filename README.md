@@ -1,3 +1,11 @@
+> ## 🛬 This mod has landed. [Continue to the new one →](https://github.com/kerimala/vtolvr-tacview-recorder)
+>
+> **VTOLVR-TacviewLogger is no longer maintained.** [@kerimala](https://github.com/kerimala) has rewritten it from scratch as the [Tacview Singleplayer Recorder](https://github.com/kerimala/vtolvr-tacview-recorder) — ACMI 2.2, real terrain export, Steam Workshop install, and actual active development.
+>
+> [**Steam Workshop**](https://github.com/kerimala/vtolvr-tacview-recorder) · [**GitHub**](https://github.com/kerimala/vtolvr-tacview-recorder) · Requires VTOL VR Mod Loader, VTOLAPI, and Tacview 1.9.5+
+>
+> Everything below is kept for historical reference only. It will not work with current VTOL VR.
+
 # VTOL VR Tacview Data Logger Mod
 
 ![header2](https://user-images.githubusercontent.com/1825214/85210315-da335c80-b30c-11ea-9200-7704414ddb69.png)
